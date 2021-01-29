@@ -1,0 +1,2237 @@
+Jupyter Notebook
+Assignment 2 Final Clean v1
+Last Checkpoint: Last Saturday at 9:35 AM
+(unsaved changes)
+Current Kernel Logo
+Python (ML) 
+File
+Edit
+View
+Insert
+Cell
+Kernel
+Widgets
+Help
+
+Code
+What is the best classifying technique in Python's scikit-learn?
+1. Introduction
+The aim of this project is to undertake various popular classification methods which are used to predict a category of a data point within Python of a dataset, through which a comparison of techniques can be made.
+
+The techniques used in this project are:
+
+Logistic Regression
+Linear Discriminant Analysis (LDA and QDA)
+Decision Trees
+Random Forests
+Gradient Boosted Decision Trees
+XGBoosted Decision Trees
+Support Vector Machines (SVM)
+Neural Networks
+These methods will be compared using different metrics, in particular:
+
+Accuracy: models’ ability to correctly predict both classes.
+Precision: model’s ability to correctly detect positive classes from all predicted positive classes
+Sensitivity (Recall): models’ ability to correctly detect positive classes from all actual positive classes
+F1 Score: weighted average of precision and recall (used for unbalanced problems).
+1.1 Background
+We are going to use techniques in the scikit-learn library for python. There is a popular cheat sheet which guides the statistician which technique best suits their dataset in order to maintain the best possible performance. The cheat sheet suggests using 6 of the techniques previously mentioned. It is quite often dataset-specific as to what is the best statistical technique to use and many statisticians use may techniques in order to achieve a best possible model.
+
+1.2 Grid Search
+In this report, for each classifying technique a "grid search" is used – also known as parameter tuning i.e. trying many different parameters for each statistical technique and using the parameters for that technique that yield the best accuracy. Parameters selected for the grid search are kept as equal as possible amongst the models in order to produce a fair comparison.
+
+Accuracy is used to select the best parameters in the grid search since this is a balanced problem and there is no justification to favour the detection of positive cases or negative (in some medical studies this can be the case).
+
+2. The Data
+The data set consists of simulated data on high energy gamma particles in an atmospheric Cherenkov telescope, extracted from extracted from the MAGIC Gamma Telescope data set (https://archive.ics.uci.edu/ml/datasets/magic+gamma+telescope).
+
+As particles pass through the telescope, a shower of electromagnetic radiation is produced, which are approximated by elliptical shapes. The goal is to distinguish the showers which arise from gamma particles from those which come from hadrons. The data has 11 columns, 10 continuous variables in the first 10 columns, and a class label, g or h, in the final column.
+
+The data is balanced and therefore the Accuracy statistic can be used to judge the performance of the statistical technique.
+
+2.1 Preparation
+The data doesn’t contain any missing values and is a balance dataset. Each variable is normalised, making it’s mean and standard variance equal to 0 and 1 respectively. This is necessary to do for a neural network and a support vector machine but for consistency the standardised variables are used for all techniques.
+
+A dataframe is created which only includes the “class” variable – whether it’s a gamma or hadron particle (what we’re trying to classify). Another dataframe is created including all the standardised predictor variables.
+
+Each of the dataframes’ rows are randomly split by a 75:25 ratio, forming train and test datasets respectively. The analysis will be carried out using the train datasets and evaluated using the test datasets.
+
+3. Analysis
+3.1 Results
+The table below shows how each classifying technique performed across each performance metric. Red cells indicate relatively poor scores and green cells indicate good scores. The last column shows which classifier performed the best and the cell in blue, the bottom-right most cell shows the classifier that has the best score averaged across all the metrics. The Neural Network model is crowned the champion here.
+
+from IPython.display import Image
+Image(filename='Results table.png') 
+Neural Networksand SVM scored well in precision. This could be a good classifier to use then if identifying true positives is of particular interest. QDA performs quite badly and LDA along with Logistic Regression perform relatively poorly as expected due to their simple algorithms. The Decision Tree and perform fairly well, Gradient boost and SVM perform better and Random Forests, XGBoosts and Neural Networks perform really well.
+
+Why QDA performs so poorly can be explained by the fact it overfits the data by allowing for a non-linear quadratic decision boundary. However, the results are extremely poor in contrast with the other methods that perhaps isn't fully explained by overfitting, especially since the accuracy on the trained data wasn't good. This is a good example that supports the often used strategy by statisticians of running the data through different algorithms to allow for quirks such as this.
+
+The tree methods perform better than the decision boundary methods (Logistic, LDA, QDA) by bisecting the space of data points into smaller and smaller sections, allowing for complex relationships.
+
+Random Forests (Gradient Boosted and XGBoost) build on decision trees by producing many decision trees thereby limiting overfitting and the error, and we see they perform better.
+
+SVM performs well with it's complex algorithm and non-linear decision boundary allowing for complex relationships.
+
+Neural Networks performs the best, again allowing for complex non-linear relationships and using the extremely effective backpropagation algorithm.
+
+Shown below are the confusion matrices for all the models. Highlighted in red is the Neural Network confusion matrix which performs the best. These show the percentage of the data correctly predicted (top left and bottom right) and the percentage incorrectly predicted (top right and bottom left).
+
+from IPython.display import Image
+Image(filename='confusion.png') 
+3.2 Learnings
+This analysis brought up some interesting traits and goes some way to answer why a random forest might be a good option to use when classifying a data point - and that trait lies in the nature of the grid search.
+
+One of the problems with grid search is the time it takes to carry out the amount of models which correspond to the combinations of parameters entered in by the user to the grid search. In this particular report, the initial grid search for the Gradient Boost model failed to complete after being ran for 18 hours. That meant reducive the number of paramters selected for the more complicated, computationally expensive classifiers so that the grid search wouldn't take as long to get results.
+
+This reduction of the amount of parameters was carried out with Gradient Boost, XGBoost, SVM and Neural Network classifiers. However it was not carried out with the rest.
+
+The relatively moderately complicated Random Forest was allowed to run with a good amount of parameters - and this took 1 hour to run.
+
+The accuracy of Neural Network is highly dependent on the number of epochs (cycle through the training set) selected. Changing the number of epochs in the grid search increases the time required to run, but in what was observed to be a predictable fashion (unlike changing the number of parameters of Gradient Boost which would increase the running time exponentially in the literary sense). For example, changing the epochs from 5 to 500 increased the running time from 2 minutes to 90 minutes; increasing the accurady from 0.82 to 0.87. That increase is worth waiting for.
+
+For that reason Neural Networks offers a way to fine tune the complexity without the fear of the grid search taking a lot of time.
+
+The conclusions here would be, if a statistician is concerned with running time of the grid search, the Random Forest and Neural Network offers a good balance between complexity of the algorithm and speed. In particular the Random Forest classifier is allowed to experiment with many more parameters in a short space of time.
+
+3.3 Weaknesses
+The main weakness of this report as mentioned before is time. Some of the parameters of the grid search had to be reduced in order to produce the results in a timely fashion. This has real world applications as often results are needed quite quickly.
+
+An improvement here could be running the mode with many parameters, or perhaps using a random parameters search, not on a local computer but on a server. This means the code would run on powerful hardware without interruption allowing for more parameters to be used without demanding as much time.
+
+4. Conclusion
+To conclude this report, a PCA of the different models is carried out - allowing us to see how the models perform differently across the metrics.
+
+4.1 PCA results tables
+Below is a table of the loading scores for the metrics:
+
+PC1	PC2
+Accuracy	-0.555847	-0.007286
+Precision	-0.337699	0.909220
+Recall	-0.527220	-0.362511
+F1 Score	-0.546838	-0.204576
+Below is a table of the loading scores for each of the models:
+
+PC1	PC2
+Logistic Regression	1.765105	-1.445549
+LDA	1.915738	-1.024678
+QDA	3.420752	1.766692
+Random Forest	-1.651047	0.145345
+Gradient Boost	-0.924015	-0.302925
+XGBoost	-1.430164	0.049933
+SVM	-1.261860	0.500408
+NN	-1.849758	0.466846
+Decision Tree	0.015247	-0.156073
+4.2 PC1 vs PC2 plot
+Below is a graph of PC1 vs PC2. PC1 acconts for ~ 80% of the variance, and PC2 ~ 19%.
+
+from IPython.display import Image
+Image(filename='confusion.png') 
+4.3 PCA conclusions
+PC1 - overall performance : High score = Poor overall performance, Low Score = Good overall performance PC2 - precision : High score = High precision, Low score = low precision
+
+QDA performs poorly so it has a high PC1 but with a relatively good precision so has a high PC2. QDA was a quirk in this report and for that reason it is an outlier.
+
+We see LDA and Logistic Regressions together, scoring high on PC1 (poor performance) and negative on PC2 (poor precision). These algorithms produce a linear decision boundary and for that reason they are together in the plot.
+
+Decision Tree performs fairly well and the best models clump around the left of the plot, with Neural Network being the left most point (Negative PC1 and neutral PC2 - good precision with good performance).
+
+Prepare Data used in all models
+#Libraries needed
+import warnings;
+warnings.filterwarnings('ignore');
+​
+%matplotlib inline
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.style.use('seaborn')
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score,recall_score,precision_score,f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import GridSearchCV
+from matplotlib.pyplot import figure
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.preprocessing import StandardScaler
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation
+from keras.utils import np_utils
+from keras.callbacks import EarlyStopping
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.svm import SVC
+#read in data
+gamma=pd.read_csv('C:/Users/T430/Google Drive/00 - Masters/Machine Learning/Assignment 2/gamma(1).csv')
+gamma
+​
+#define variables
+features=["Length","Width","Size","Conc","Conc1","Asym", "M3Long", "M3Trans", "Alpha", "Dist"]
+X=gamma[features]
+y=gamma["class"]
+​
+#encode y, class group, as 0 1 array
+from sklearn.preprocessing import LabelEncoder
+enc=LabelEncoder()
+label_encoder=enc.fit(y)
+y=label_encoder.transform(y)
+​
+#split into training and test set and set seed
+​
+​
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.25, random_state=11)
+y_train1 = y_train > 0 
+#normalise data
+X_train=(X_train-X_train.mean())/X_train.std()
+X_test=(X_test-X_test.mean())/X_test.std()
+​
+### Logistic Regression
+#GRID SEARCH  LOGISTIC REGRESSSION
+#Grid Search
+from sklearn.model_selection import GridSearchCV
+clf = LogisticRegression()
+grid_values = {'penalty': ['l1', 'l2'],'C':[0.001,.009,0.01,.09,1,5,10,25]}
+lgrid_clf_acc = GridSearchCV(clf, param_grid = grid_values,scoring = 'accuracy', cv=3, verbose = 0 )
+lgrid_clf_acc.fit(X_train, y_train);
+#Predict values based on new parameters
+y_pred_acc = lgrid_clf_acc.predict(X_test)
+​
+# New Model Evaluation metrics 
+# print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+# print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+# print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+# print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["Logistic Regression"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#Logistic Regression (Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#ax1 = plt.subplot(221)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm,annot=True,linewidths=.5,square=True,cmap='Purples')
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of Logistic Regression Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+# ax1 = plt.subplot(222)
+# figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+# y_pred_proba=grid_clf_acc.predict_proba(X_test)[::,1]
+# fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+# auc=metrics.roc_auc_score(y_test,y_pred_proba)
+# plt.plot(fpr,tpr,label="auc="+str(auc))
+# plt.legend(loc=4)
+# plt.title('ROC Curve - Logistic Regression', size = 20)
+# plt.xlabel('1 - Specificity')
+# plt.ylabel('Sensitivity')
+# ;
+​
+
+results = pd.DataFrame(lgrid_clf_acc.best_params_.items())
+results.to_csv('log-random-grid-search-results-01.csv', index=False)
+​
+results = pd.DataFrame(lgrid_clf_acc.best_params_.items())
+results.to_csv('log-random-grid-search-results-01.csv', index=False)
+​
+Discriminant Analysis
+LDA
+0
+lda = LDA()
+## Search grid for optimal parameters
+lda_param_grid = {"solver" : ["svd"],
+              "tol" : [0.0001,0.0002,0.0003,0.01,0.1],
+                 'store_covariance': (True, False)}
+#gs
+gsLDA = GridSearchCV(lda, param_grid = lda_param_grid, cv=3,
+                     scoring="accuracy", n_jobs= 4, verbose = 0)
+​
+gsLDA.fit(X_train,y_train)
+LDA_best = gsLDA.best_estimator_
+​
+# Best score
+gsLDA.best_score_;
+Fitting 3 folds for each of 10 candidates, totalling 30 fits
+[Parallel(n_jobs=4)]: Using backend LokyBackend with 4 concurrent workers.
+[Parallel(n_jobs=4)]: Done  30 out of  30 | elapsed:    0.2s finished
+ax.set_ylim(2, -0.0)
+#Predict values based on new parameters
+y_pred_acc = gsLDA.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["LDA"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of LDA Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+Accuracy Score : 0.7616
+Precision Score : 0.8217349857006673
+Recall Score : 0.6782061369000787
+F1 Score : 0.743103448275862
+
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=gsLDA.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - LDA', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+​
+
+cv_results_
+​
+results = pd.DataFrame(gsQDA.best_params_.items())
+results.to_csv('LDA-random-grid-search-results-01.csv', index=False)
+​
+QDA
+#QDA GRID SEARCH 
+# Linear Discriminant Analysis - Parameter Tuning GRID SEARCH
+qda = QDA()
+​
+## Search grid for optimal parameters
+qda_param_grid = {
+    'reg_param': (0.00001, 0.0001, 0.001,0.01, 0.1, 0.2, 0.3, 0.4, 0.5), 
+    'store_covariance': (True, False),
+    'tol': (0.0001, 0.001,0.01, 0.1, 0.2, 0.3, 0.4, 0.5), 
+                   }
+​
+​
+gsQDA = GridSearchCV(qda, param_grid = qda_param_grid, cv=3,
+                     scoring="accuracy", n_jobs= 4, verbose = 1)
+​
+gsQDA.fit(X_train,y_train)
+QDA_best = gsQDA.best_estimator_
+​
+# Best score
+gsQDA.best_score_
+Fitting 3 folds for each of 144 candidates, totalling 432 fits
+[Parallel(n_jobs=4)]: Using backend LokyBackend with 4 concurrent workers.
+[Parallel(n_jobs=4)]: Done  59 tasks      | elapsed:    8.7s
+[Parallel(n_jobs=4)]: Done 432 out of 432 | elapsed:   10.3s finished
+0.7268
+y_pred_acc
+#Predict values based on new parameters
+y_pred_acc = gsQDA.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["QDA"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of QDA Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+Accuracy Score : 0.7176
+Precision Score : 0.8918169209431346
+Recall Score : 0.5059008654602675
+F1 Score : 0.6455823293172691
+
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=gsQDA.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - QDA', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+
+cv_results_
+​
+results = pd.DataFrame(gsLDA.best_params_.items())
+results.to_csv('QDA-random-grid-search-results-01.csv', index=False)
+​
+Decision Trees
+Decision Tree
+grid_clf_acc
+#DECISION TREE GRID SEARCH
+​
+#Grid Search
+from sklearn.model_selection import GridSearchCV
+clf = DecisionTreeClassifier()
+grid_values = {'criterion': ['gini', 'entropy'],
+               'max_depth':[5, 8, 15, 25, 30],
+              "min_samples_split": [2, 5, 10, 15, 100],
+              "min_samples_leaf": range(1,5)}
+grid_clf_acc = GridSearchCV(clf, param_grid = grid_values,scoring = 'accuracy', cv=3, verbose = 1)
+grid_clf_acc.fit(X_train, y_train)
+​
+#Predict values based on new parameters
+y_pred_acc = grid_clf_acc.predict(X_test)
+​
+Fitting 3 folds for each of 200 candidates, totalling 600 fits
+[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=1)]: Done 600 out of 600 | elapsed:   39.6s finished
+#Predict values based on new parameters
+y_pred_acc = grid_clf_acc.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["Decision Tree"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of Decision Tree Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+​
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=grid_clf_acc.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - Decision Tree', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+Accuracy Score : 0.8144
+Precision Score : 0.8712051517939282
+Recall Score : 0.7450826121164438
+F1 Score : 0.8032230703986429
+
+
+cv_results_
+​
+results = pd.DataFrame(grid_clf_acc.best_params_.items())
+results.to_csv('DT-random-grid-search-results-01.csv', index=False)
+​
+Random Forest
+gridF
+#RANDOM FOREST GRID SEARCH
+from sklearn.ensemble import RandomForestClassifier
+#from sklearn.ensemble import RandomForestClassifier
+rfclf=RandomForestClassifier()
+​
+grid_values = {'n_estimators': [100, 300, 500, 800, 1200],
+               'max_depth':[5, 8, 15, 25, 30],
+              "min_samples_split": [2, 5, 10, 15, 100],
+              "min_samples_leaf": range(1,5)}
+​
+from sklearn.model_selection import GridSearchCV
+​
+​
+​
+gridF = GridSearchCV(rfclf, grid_values, cv = 3, verbose = 1, scoring='accuracy',
+                      n_jobs = -1)
+bestF = gridF.fit(X_train, y_train)
+​
+Fitting 3 folds for each of 500 candidates, totalling 1500 fits
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  42 tasks      | elapsed:  1.3min
+[Parallel(n_jobs=-1)]: Done 192 tasks      | elapsed:  5.4min
+[Parallel(n_jobs=-1)]: Done 442 tasks      | elapsed: 14.0min
+[Parallel(n_jobs=-1)]: Done 792 tasks      | elapsed: 32.0min
+[Parallel(n_jobs=-1)]: Done 1242 tasks      | elapsed: 56.6min
+[Parallel(n_jobs=-1)]: Done 1500 out of 1500 | elapsed: 70.8min finished
+gridF
+#Predict values based on new parameters
+y_pred_acc = gridF.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["Random Forest"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of Random Forest Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+​
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=gridF.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - Random Forest', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+​
+#export data so don't have to rerun this
+y_pred_proba
+y_pred_acc
+Accuracy Score : 0.8628
+Precision Score : 0.9
+Recall Score : 0.8214004720692368
+F1 Score : 0.8589058000822707
+
+
+dataset = pd.DataFrame({'RFPredProb': y_pred_proba, 'RFPredClass': y_pred_acc})
+#export data so don't have to rerun this
+y_pred_proba
+y_pred_acc
+​
+dataset = pd.DataFrame({'RFPredProb': y_pred_proba, 'RFPredClass': y_pred_acc})
+dataset
+dataset.to_csv('RF result.csv', index=False)  
+cv_results_
+print('\n All results:')
+print(gridF.cv_results_)
+print('\n Best estimator:')
+print(gridF.best_estimator_)
+print(gridF.best_score_ * 2 - 1)
+print('\n Best hyperparameters:')
+print(gridF.best_params_)
+results = pd.DataFrame(gridF.best_params_.items())
+results.to_csv('RF-random-grid-search-results-01.csv', index=False)
+​
+Gradient Boosting
+from sklearn.ensemble import GradientBoostingClassifier
+parameters = {
+    "loss":["deviance"],
+    "learning_rate": [0.04, 0.05, 0.06],
+    "min_samples_split": [5, 10, 30 ],
+    "min_samples_leaf": [1,3,5],
+    "max_depth":[3,5,8],
+    "max_features":["log2","sqrt"],
+    "criterion": ["friedman_mse",  "mae"],
+    "subsample":[0.5, 0.75, 1.0],
+    "n_estimators":[10]
+    }
+​
+gbclf = GridSearchCV(GradientBoostingClassifier(), parameters, cv=3, n_jobs=-1, scoring ='accuracy' , verbose = 1)
+​
+gbclf.fit(X_train, y_train)
+Fitting 3 folds for each of 972 candidates, totalling 2916 fits
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  43 tasks      | elapsed:    7.4s
+[Parallel(n_jobs=-1)]: Done 343 tasks      | elapsed:   16.9s
+[Parallel(n_jobs=-1)]: Done 843 tasks      | elapsed:   44.4s
+[Parallel(n_jobs=-1)]: Done 1375 tasks      | elapsed:  1.3min
+[Parallel(n_jobs=-1)]: Done 1874 tasks      | elapsed: 19.5min
+[Parallel(n_jobs=-1)]: Done 2424 tasks      | elapsed: 43.3min
+[Parallel(n_jobs=-1)]: Done 2916 out of 2916 | elapsed: 65.5min finished
+GridSearchCV(cv=3, error_score='raise-deprecating',
+             estimator=GradientBoostingClassifier(criterion='friedman_mse',
+                                                  init=None, learning_rate=0.1,
+                                                  loss='deviance', max_depth=3,
+                                                  max_features=None,
+                                                  max_leaf_nodes=None,
+                                                  min_impurity_decrease=0.0,
+                                                  min_impurity_split=None,
+                                                  min_samples_leaf=1,
+                                                  min_samples_split=2,
+                                                  min_weight_fraction_leaf=0.0,
+                                                  n_estimators=100,
+                                                  n_iter_no...
+             iid='warn', n_jobs=-1,
+             param_grid={'criterion': ['friedman_mse', 'mae'],
+                         'learning_rate': [0.04, 0.05, 0.06],
+                         'loss': ['deviance'], 'max_depth': [3, 5, 8],
+                         'max_features': ['log2', 'sqrt'],
+                         'min_samples_leaf': [1, 3, 5],
+                         'min_samples_split': [5, 10, 30], 'n_estimators': [10],
+                         'subsample': [0.5, 0.75, 1.0]},
+             pre_dispatch='2*n_jobs', refit=True, return_train_score=False,
+             scoring='accuracy', verbose=1)
+best_params_.items()
+results = pd.DataFrame(gbclf.best_params_.items())
+results.to_csv('gb-random-grid-search-results-01.csv', index=False)
+​
+​
+​
+#Predict values based on new parameters
+y_pred_acc = gbclf.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["Gradient Boost"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of Gradient Boost Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+​
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=gbclf.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - Gradient Boost', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+Accuracy Score : 0.842
+Precision Score : 0.8775862068965518
+Recall Score : 0.8009441384736428
+F1 Score : 0.8375154257507199
+
+
+XGboost
+# A parameter grid for XGBoost
+parameters = {
+        'min_child_weight': [1, 5, 10],
+        'gamma': [0.5, 2.5, 5],
+        'subsample': [0.6, 0.8, 1.0],
+        'colsample_bytree': [0.6, 0.8, 1.0],
+        'max_depth': [3, 4, 5]
+        }
+​
+xgbclf = GridSearchCV(XGBClassifier(), parameters, cv=3, n_jobs=-1, scoring ='accuracy', verbose = 1)
+​
+xgbclf.fit(X_train, y_train)
+​
+Fitting 3 folds for each of 243 candidates, totalling 729 fits
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  42 tasks      | elapsed:   11.1s
+[Parallel(n_jobs=-1)]: Done 192 tasks      | elapsed:   39.0s
+[Parallel(n_jobs=-1)]: Done 442 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=-1)]: Done 729 out of 729 | elapsed:  2.7min finished
+GridSearchCV(cv=3, error_score='raise-deprecating',
+             estimator=XGBClassifier(base_score=0.5, booster='gbtree',
+                                     colsample_bylevel=1, colsample_bynode=1,
+                                     colsample_bytree=1, gamma=0,
+                                     learning_rate=0.1, max_delta_step=0,
+                                     max_depth=3, min_child_weight=1,
+                                     missing=None, n_estimators=100, n_jobs=1,
+                                     nthread=None, objective='binary:logistic',
+                                     random_state=0, reg_alpha=0, reg_lambda=1,
+                                     scale_pos_weight=1, seed=None, silent=None,
+                                     subsample=1, verbosity=1),
+             iid='warn', n_jobs=-1,
+             param_grid={'colsample_bytree': [0.6, 0.8, 1.0],
+                         'gamma': [0.5, 2.5, 5], 'max_depth': [3, 4, 5],
+                         'min_child_weight': [1, 5, 10],
+                         'subsample': [0.6, 0.8, 1.0]},
+             pre_dispatch='2*n_jobs', refit=True, return_train_score=False,
+             scoring='accuracy', verbose=1)
+​
+results = pd.DataFrame(xgbclf.best_params_.items())
+results.to_csv('xgb-random-grid-search-results-01.csv', index=False)
+​
+​
+​
+#Predict values based on new parameters
+y_pred_acc = xgbclf.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["XGBoost"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of XGBoost Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+​
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=xgbclf.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - XGBoost', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+Accuracy Score : 0.8564
+Precision Score : 0.8944636678200693
+Recall Score : 0.8135326514555468
+F1 Score : 0.8520807581376185
+
+
+Support Vector Machine
+svc_clf_acc.fit(X_train, y_train)
+#SVM GRID SEARCH 
+#Grid Search
+clf = SVC()
+grid_values = {'C':[1,100,1000],'gamma':[1,0.1,0.001], 'kernel':['linear','rbf'], 'probability':[1]}
+svc_clf_acc = GridSearchCV(clf, param_grid = grid_values,scoring = 'accuracy', cv=3, verbose = 1)
+svc_clf_acc.fit(X_train, y_train)
+​
+#Predict values based on new parameters
+y_pred_acc = svc_clf_acc.predict(X_test)
+​
+Fitting 3 folds for each of 18 candidates, totalling 54 fits
+[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+---------------------------------------------------------------------------
+KeyboardInterrupt                         Traceback (most recent call last)
+<ipython-input-152-25332aff373d> in <module>
+      4 grid_values = {'C':[1,100,1000],'gamma':[1,0.1,0.001], 'kernel':['linear','rbf'], 'probability':[1]}
+      5 svc_clf_acc = GridSearchCV(clf, param_grid = grid_values,scoring = 'accuracy', cv=3, verbose = 1)
+----> 6 svc_clf_acc.fit(X_train, y_train)
+      7 
+      8 #Predict values based on new parameters
+
+~\Anaconda3\lib\site-packages\sklearn\model_selection\_search.py in fit(self, X, y, groups, **fit_params)
+    686                 return results
+    687 
+--> 688             self._run_search(evaluate_candidates)
+    689 
+    690         # For multi-metric evaluation, store the best_index_, best_params_ and
+
+~\Anaconda3\lib\site-packages\sklearn\model_selection\_search.py in _run_search(self, evaluate_candidates)
+   1147     def _run_search(self, evaluate_candidates):
+   1148         """Search all candidates in param_grid"""
+-> 1149         evaluate_candidates(ParameterGrid(self.param_grid))
+   1150 
+   1151 
+
+~\Anaconda3\lib\site-packages\sklearn\model_selection\_search.py in evaluate_candidates(candidate_params)
+    665                                for parameters, (train, test)
+    666                                in product(candidate_params,
+--> 667                                           cv.split(X, y, groups)))
+    668 
+    669                 if len(out) < 1:
+
+~\Anaconda3\lib\site-packages\joblib\parallel.py in __call__(self, iterable)
+    922                 self._iterating = self._original_iterator is not None
+    923 
+--> 924             while self.dispatch_one_batch(iterator):
+    925                 pass
+    926 
+
+~\Anaconda3\lib\site-packages\joblib\parallel.py in dispatch_one_batch(self, iterator)
+    757                 return False
+    758             else:
+--> 759                 self._dispatch(tasks)
+    760                 return True
+    761 
+
+~\Anaconda3\lib\site-packages\joblib\parallel.py in _dispatch(self, batch)
+    714         with self._lock:
+    715             job_idx = len(self._jobs)
+--> 716             job = self._backend.apply_async(batch, callback=cb)
+    717             # A job can complete so quickly than its callback is
+    718             # called before we get here, causing self._jobs to
+
+~\Anaconda3\lib\site-packages\joblib\_parallel_backends.py in apply_async(self, func, callback)
+    180     def apply_async(self, func, callback=None):
+    181         """Schedule a func to be run"""
+--> 182         result = ImmediateResult(func)
+    183         if callback:
+    184             callback(result)
+
+~\Anaconda3\lib\site-packages\joblib\_parallel_backends.py in __init__(self, batch)
+    547         # Don't delay the application, to avoid keeping the input
+    548         # arguments in memory
+--> 549         self.results = batch()
+    550 
+    551     def get(self):
+
+~\Anaconda3\lib\site-packages\joblib\parallel.py in __call__(self)
+    223         with parallel_backend(self._backend, n_jobs=self._n_jobs):
+    224             return [func(*args, **kwargs)
+--> 225                     for func, args, kwargs in self.items]
+    226 
+    227     def __len__(self):
+
+~\Anaconda3\lib\site-packages\joblib\parallel.py in <listcomp>(.0)
+    223         with parallel_backend(self._backend, n_jobs=self._n_jobs):
+    224             return [func(*args, **kwargs)
+--> 225                     for func, args, kwargs in self.items]
+    226 
+    227     def __len__(self):
+
+~\Anaconda3\lib\site-packages\sklearn\model_selection\_validation.py in _fit_and_score(estimator, X, y, scorer, train, test, verbose, parameters, fit_params, return_train_score, return_parameters, return_n_test_samples, return_times, return_estimator, error_score)
+    514             estimator.fit(X_train, **fit_params)
+    515         else:
+--> 516             estimator.fit(X_train, y_train, **fit_params)
+    517 
+    518     except Exception as e:
+
+~\Anaconda3\lib\site-packages\sklearn\svm\base.py in fit(self, X, y, sample_weight)
+    207 
+    208         seed = rnd.randint(np.iinfo('i').max)
+--> 209         fit(X, y, sample_weight, solver_type, kernel, random_seed=seed)
+    210         # see comment on the other call to np.iinfo in this file
+    211 
+
+~\Anaconda3\lib\site-packages\sklearn\svm\base.py in _dense_fit(self, X, y, sample_weight, solver_type, kernel, random_seed)
+    266                 cache_size=self.cache_size, coef0=self.coef0,
+    267                 gamma=self._gamma, epsilon=self.epsilon,
+--> 268                 max_iter=self.max_iter, random_seed=random_seed)
+    269 
+    270         self._warn_from_fit_status()
+
+KeyboardInterrupt: 
+
+
+results = pd.DataFrame(svc_clf_acc.best_params_.items())
+results.to_csv('svc_clf_acc-random-grid-search-results-01.csv', index=False)
+
+
+#Predict values based on new parameters
+y_pred_acc = svc_clf_acc.predict(X_test)
+
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["SVM"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of SVM Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+
+
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=svc_clf_acc.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - SVM', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+​
+results = pd.DataFrame(svc_clf_acc.best_params_.items())
+results.to_csv('svc_clf_acc-random-grid-search-results-01.csv', index=False)
+​
+​
+#Predict values based on new parameters
+y_pred_acc = svc_clf_acc.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["SVM"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of SVM Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+​
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=svc_clf_acc.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - SVM', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+Accuracy Score : 0.8504
+Precision Score : 0.9066183136899365
+Recall Score : 0.7867820613690008
+F1 Score : 0.8424599831508003
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-143-a1ad135db4c7> in <module>
+     36 
+     37 figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+---> 38 y_pred_proba=svc_clf_acc.predict_proba(X_test)[::,1]
+     39 fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+     40 auc=metrics.roc_auc_score(y_test,y_pred_proba)
+
+~\Anaconda3\lib\site-packages\sklearn\utils\metaestimators.py in __get__(self, obj, type)
+    108                     continue
+    109                 else:
+--> 110                     getattr(delegate, self.attribute_name)
+    111                     break
+    112             else:
+
+~\Anaconda3\lib\site-packages\sklearn\svm\base.py in predict_proba(self)
+    614         datasets.
+    615         """
+--> 616         self._check_proba()
+    617         return self._predict_proba
+    618 
+
+~\Anaconda3\lib\site-packages\sklearn\svm\base.py in _check_proba(self)
+    581     def _check_proba(self):
+    582         if not self.probability:
+--> 583             raise AttributeError("predict_proba is not available when "
+    584                                  " probability=False")
+    585         if self._impl not in ('c_svc', 'nu_svc'):
+
+AttributeError: predict_proba is not available when  probability=False
+
+
+<Figure size 480x320 with 0 Axes>
+Neural Network
+(X_train, y_train)
+
+#NEURAL NETWORK GRID SEARCH
+​
+n_classes = 2
+Y_train = y_train
+#print(X_train.shape)
+input_dim = X_train.shape[1]
+​
+def create_model(dropout_rate=0.0, neurons=128, second_layer=True):
+    model = Sequential()
+    model.add(Dense(neurons,input_dim=input_dim))
+    model.add(Dropout(dropout_rate))
+    model.add(Activation('relu'))
+    if second_layer:
+        model.add(Dense(neurons//2,input_dim=input_dim))
+        model.add(Dropout(dropout_rate))
+        model.add(Activation('relu'))
+    model.add(Dense(n_classes))
+    model.add(Activation('softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    return model
+​
+early_stopper=EarlyStopping(monitor='val_loss', patience=3, verbose=1, mode='auto')
+#model = KerasClassifier(build_fn=create_model, nb_epoch=5000, batch_size=99, verbose=1)
+model = KerasClassifier(build_fn=create_model,  epochs = 500, batch_size=99, verbose=1)
+​
+# # Which parameters we choose here is more a gut decision.
+param_grid = dict(
+    neurons=[input_dim * 2**k for k in range(1,5)],
+    dropout_rate=[0.0, 0.2, 0.4, 0.6, 0.8],
+    second_layer=[True, False],
+    )
+​
+# # When running locally, which n_jobs setting is faster depends on the backend, openmp support, number of processors etc.
+gridNN = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, verbose=1, 
+                    #scoring='neg_log_loss',
+                    scoring = 'accuracy',
+                    cv=3)
+​
+gridNN.fit(X_train, y_train)
+​
+# Here's the result
+​
+#results = pd.DataFrame(gridNN.best_params_.items())
+#results.to_csv('gridNN-random-grid-search-results-01.csv', index=False)
+​
+Fitting 3 folds for each of 40 candidates, totalling 120 fits
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  42 tasks      | elapsed: 25.4min
+[Parallel(n_jobs=-1)]: Done 120 out of 120 | elapsed: 91.9min finished
+Epoch 1/500
+7500/7500 [==============================] - 1s 80us/step - loss: 0.5384 - accuracy: 0.7245
+Epoch 2/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.4597 - accuracy: 0.7784
+Epoch 3/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.4406 - accuracy: 0.7936
+Epoch 4/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.4279 - accuracy: 0.8040
+Epoch 5/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.4202 - accuracy: 0.8105
+Epoch 6/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.4122 - accuracy: 0.8117
+Epoch 7/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.4095 - accuracy: 0.8120
+Epoch 8/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.4061 - accuracy: 0.8204
+Epoch 9/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.4074 - accuracy: 0.8207
+Epoch 10/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3990 - accuracy: 0.8264
+Epoch 11/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3933 - accuracy: 0.8223
+Epoch 12/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3949 - accuracy: 0.8280
+Epoch 13/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3943 - accuracy: 0.8268
+Epoch 14/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3909 - accuracy: 0.8303
+Epoch 15/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3872 - accuracy: 0.8297
+Epoch 16/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3871 - accuracy: 0.8283
+Epoch 17/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3885 - accuracy: 0.8289
+Epoch 18/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3820 - accuracy: 0.8356
+Epoch 19/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3852 - accuracy: 0.8343
+Epoch 20/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3805 - accuracy: 0.8273
+Epoch 21/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3795 - accuracy: 0.8353
+Epoch 22/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3805 - accuracy: 0.8304
+Epoch 23/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3808 - accuracy: 0.8356
+Epoch 24/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3786 - accuracy: 0.8365
+Epoch 25/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3739 - accuracy: 0.8360
+Epoch 26/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3717 - accuracy: 0.8377
+Epoch 27/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3750 - accuracy: 0.8377
+Epoch 28/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3730 - accuracy: 0.8363
+Epoch 29/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3777 - accuracy: 0.8332
+Epoch 30/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3697 - accuracy: 0.8361
+Epoch 31/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3715 - accuracy: 0.8381
+Epoch 32/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3731 - accuracy: 0.8365
+Epoch 33/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3697 - accuracy: 0.8352
+Epoch 34/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3713 - accuracy: 0.8379
+Epoch 35/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3714 - accuracy: 0.8363
+Epoch 36/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3670 - accuracy: 0.8391
+Epoch 37/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3711 - accuracy: 0.8368
+Epoch 38/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3697 - accuracy: 0.8427
+Epoch 39/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3694 - accuracy: 0.8403
+Epoch 40/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3676 - accuracy: 0.8375
+Epoch 41/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3678 - accuracy: 0.8351
+Epoch 42/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3679 - accuracy: 0.8391
+Epoch 43/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3645 - accuracy: 0.8425
+Epoch 44/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3668 - accuracy: 0.8407
+Epoch 45/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3662 - accuracy: 0.8381
+Epoch 46/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3669 - accuracy: 0.8425
+Epoch 47/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3674 - accuracy: 0.8401
+Epoch 48/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3680 - accuracy: 0.8389
+Epoch 49/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3668 - accuracy: 0.8367
+Epoch 50/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3668 - accuracy: 0.84 - 0s 34us/step - loss: 0.3672 - accuracy: 0.8395
+Epoch 51/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3679 - accuracy: 0.8401
+Epoch 52/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3666 - accuracy: 0.8399
+Epoch 53/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3657 - accuracy: 0.8413
+Epoch 54/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3619 - accuracy: 0.8412
+Epoch 55/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3605 - accuracy: 0.8427
+Epoch 56/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3609 - accuracy: 0.8417
+Epoch 57/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3650 - accuracy: 0.8377
+Epoch 58/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3626 - accuracy: 0.8435
+Epoch 59/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3648 - accuracy: 0.8399
+Epoch 60/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3626 - accuracy: 0.8405
+Epoch 61/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3623 - accuracy: 0.8395
+Epoch 62/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3598 - accuracy: 0.8425
+Epoch 63/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3625 - accuracy: 0.8411
+Epoch 64/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3614 - accuracy: 0.8407
+Epoch 65/500
+7500/7500 [==============================] - 0s 60us/step - loss: 0.3633 - accuracy: 0.8399
+Epoch 66/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3583 - accuracy: 0.8420
+Epoch 67/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3623 - accuracy: 0.8411
+Epoch 68/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3586 - accuracy: 0.8429
+Epoch 69/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3593 - accuracy: 0.8416
+Epoch 70/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3658 - accuracy: 0.8397
+Epoch 71/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3615 - accuracy: 0.8425
+Epoch 72/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3634 - accuracy: 0.8392
+Epoch 73/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3571 - accuracy: 0.8421
+Epoch 74/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3603 - accuracy: 0.8404
+Epoch 75/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3593 - accuracy: 0.8399
+Epoch 76/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3582 - accuracy: 0.8404
+Epoch 77/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3596 - accuracy: 0.8391
+Epoch 78/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3592 - accuracy: 0.8456
+Epoch 79/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3563 - accuracy: 0.8439
+Epoch 80/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3577 - accuracy: 0.8471
+Epoch 81/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3535 - accuracy: 0.8479
+Epoch 82/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3589 - accuracy: 0.8464
+Epoch 83/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3565 - accuracy: 0.8429
+Epoch 84/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3543 - accuracy: 0.8463
+Epoch 85/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3548 - accuracy: 0.8429
+Epoch 86/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3584 - accuracy: 0.8419
+Epoch 87/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3555 - accuracy: 0.8476
+Epoch 88/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3560 - accuracy: 0.8445
+Epoch 89/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3582 - accuracy: 0.8413
+Epoch 90/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3536 - accuracy: 0.8451
+Epoch 91/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3568 - accuracy: 0.8449
+Epoch 92/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3567 - accuracy: 0.8480
+Epoch 93/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3540 - accuracy: 0.8408
+Epoch 94/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3619 - accuracy: 0.8407
+Epoch 95/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3542 - accuracy: 0.8449
+Epoch 96/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3505 - accuracy: 0.8475
+Epoch 97/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3580 - accuracy: 0.8416
+Epoch 98/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3529 - accuracy: 0.8459
+Epoch 99/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3584 - accuracy: 0.8397
+Epoch 100/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3500 - accuracy: 0.8460
+Epoch 101/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3533 - accuracy: 0.8395
+Epoch 102/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3556 - accuracy: 0.8423
+Epoch 103/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3521 - accuracy: 0.8459
+Epoch 104/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3547 - accuracy: 0.8421
+Epoch 105/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3526 - accuracy: 0.8459
+Epoch 106/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3565 - accuracy: 0.8464
+Epoch 107/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3524 - accuracy: 0.8485
+Epoch 108/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3539 - accuracy: 0.8455
+Epoch 109/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3500 - accuracy: 0.8477
+Epoch 110/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3508 - accuracy: 0.8447
+Epoch 111/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3564 - accuracy: 0.8423
+Epoch 112/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3521 - accuracy: 0.8440
+Epoch 113/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3508 - accuracy: 0.8513
+Epoch 114/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3508 - accuracy: 0.8435
+Epoch 115/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3529 - accuracy: 0.8472
+Epoch 116/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3542 - accuracy: 0.8461
+Epoch 117/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3514 - accuracy: 0.8440
+Epoch 118/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3519 - accuracy: 0.8431
+Epoch 119/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3569 - accuracy: 0.8468
+Epoch 120/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3547 - accuracy: 0.8471
+Epoch 121/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3517 - accuracy: 0.8465
+Epoch 122/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3512 - accuracy: 0.8469
+Epoch 123/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3544 - accuracy: 0.8415
+Epoch 124/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3500 - accuracy: 0.8455
+Epoch 125/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3516 - accuracy: 0.8428
+Epoch 126/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3486 - accuracy: 0.8456
+Epoch 127/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3516 - accuracy: 0.8471
+Epoch 128/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3506 - accuracy: 0.8455
+Epoch 129/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3481 - accuracy: 0.8493
+Epoch 130/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3491 - accuracy: 0.8464
+Epoch 131/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3494 - accuracy: 0.8499
+Epoch 132/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3473 - accuracy: 0.8483
+Epoch 133/500
+7500/7500 [==============================] - 0s 30us/step - loss: 0.3504 - accuracy: 0.8489
+Epoch 134/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3465 - accuracy: 0.8459
+Epoch 135/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3496 - accuracy: 0.8495
+Epoch 136/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3497 - accuracy: 0.8484
+Epoch 137/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3529 - accuracy: 0.8452
+Epoch 138/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3465 - accuracy: 0.8489
+Epoch 139/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3502 - accuracy: 0.8475
+Epoch 140/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3463 - accuracy: 0.8456
+Epoch 141/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3466 - accuracy: 0.8451
+Epoch 142/500
+7500/7500 [==============================] - 0s 30us/step - loss: 0.3526 - accuracy: 0.8471
+Epoch 143/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3494 - accuracy: 0.8472
+Epoch 144/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3462 - accuracy: 0.8495
+Epoch 145/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3520 - accuracy: 0.8432
+Epoch 146/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3470 - accuracy: 0.8460
+Epoch 147/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3472 - accuracy: 0.8489
+Epoch 148/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3516 - accuracy: 0.8493
+Epoch 149/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3503 - accuracy: 0.8485
+Epoch 150/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3484 - accuracy: 0.8471
+Epoch 151/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3488 - accuracy: 0.8468
+Epoch 152/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3471 - accuracy: 0.8473
+Epoch 153/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3448 - accuracy: 0.8516
+Epoch 154/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3453 - accuracy: 0.8487
+Epoch 155/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3494 - accuracy: 0.8472
+Epoch 156/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3476 - accuracy: 0.8488
+Epoch 157/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3499 - accuracy: 0.8496
+Epoch 158/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3494 - accuracy: 0.8464
+Epoch 159/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3480 - accuracy: 0.8477
+Epoch 160/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3487 - accuracy: 0.8523
+Epoch 161/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3444 - accuracy: 0.8457
+Epoch 162/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3426 - accuracy: 0.8468
+Epoch 163/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3453 - accuracy: 0.8492
+Epoch 164/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3496 - accuracy: 0.8487
+Epoch 165/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3455 - accuracy: 0.8491
+Epoch 166/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3409 - accuracy: 0.84 - 0s 33us/step - loss: 0.3411 - accuracy: 0.8477
+Epoch 167/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3465 - accuracy: 0.8475
+Epoch 168/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3444 - accuracy: 0.8492
+Epoch 169/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3484 - accuracy: 0.8488
+Epoch 170/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3480 - accuracy: 0.84 - 0s 33us/step - loss: 0.3467 - accuracy: 0.8503
+Epoch 171/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3431 - accuracy: 0.8504
+Epoch 172/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3422 - accuracy: 0.8508
+Epoch 173/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3435 - accuracy: 0.8497
+Epoch 174/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3453 - accuracy: 0.8503
+Epoch 175/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3477 - accuracy: 0.8475
+Epoch 176/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3439 - accuracy: 0.8477
+Epoch 177/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3447 - accuracy: 0.8479
+Epoch 178/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3469 - accuracy: 0.8485
+Epoch 179/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3420 - accuracy: 0.8499
+Epoch 180/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3490 - accuracy: 0.8475
+Epoch 181/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3435 - accuracy: 0.8483
+Epoch 182/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3457 - accuracy: 0.8495
+Epoch 183/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3420 - accuracy: 0.8507
+Epoch 184/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3432 - accuracy: 0.8497
+Epoch 185/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3473 - accuracy: 0.8473
+Epoch 186/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3447 - accuracy: 0.8513
+Epoch 187/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3417 - accuracy: 0.8484
+Epoch 188/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3417 - accuracy: 0.8473
+Epoch 189/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3436 - accuracy: 0.8536
+Epoch 190/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3401 - accuracy: 0.8515
+Epoch 191/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3453 - accuracy: 0.8496
+Epoch 192/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3399 - accuracy: 0.85 - 0s 33us/step - loss: 0.3400 - accuracy: 0.8512
+Epoch 193/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3439 - accuracy: 0.8497
+Epoch 194/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3482 - accuracy: 0.8495
+Epoch 195/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3407 - accuracy: 0.8495
+Epoch 196/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3419 - accuracy: 0.8481
+Epoch 197/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3411 - accuracy: 0.8477
+Epoch 198/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3426 - accuracy: 0.8525
+Epoch 199/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3445 - accuracy: 0.8516
+Epoch 200/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3373 - accuracy: 0.8524
+Epoch 201/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3455 - accuracy: 0.8495
+Epoch 202/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3439 - accuracy: 0.8488
+Epoch 203/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3453 - accuracy: 0.8507
+Epoch 204/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3442 - accuracy: 0.8500
+Epoch 205/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3425 - accuracy: 0.8491
+Epoch 206/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3402 - accuracy: 0.8528
+Epoch 207/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3394 - accuracy: 0.8553
+Epoch 208/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3445 - accuracy: 0.8523
+Epoch 209/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3409 - accuracy: 0.8520
+Epoch 210/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3437 - accuracy: 0.8537
+Epoch 211/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3422 - accuracy: 0.8513
+Epoch 212/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3420 - accuracy: 0.8549
+Epoch 213/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3429 - accuracy: 0.8497
+Epoch 214/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3416 - accuracy: 0.8505
+Epoch 215/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3369 - accuracy: 0.8528
+Epoch 216/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3423 - accuracy: 0.8488
+Epoch 217/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3500 - accuracy: 0.8491
+Epoch 218/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3411 - accuracy: 0.8519
+Epoch 219/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3438 - accuracy: 0.8492
+Epoch 220/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3428 - accuracy: 0.8529
+Epoch 221/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3438 - accuracy: 0.8496
+Epoch 222/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3407 - accuracy: 0.8505
+Epoch 223/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3406 - accuracy: 0.8479
+Epoch 224/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3427 - accuracy: 0.8532
+Epoch 225/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3386 - accuracy: 0.8504
+Epoch 226/500
+7500/7500 [==============================] - 0s 48us/step - loss: 0.3379 - accuracy: 0.8517
+Epoch 227/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3430 - accuracy: 0.8525
+Epoch 228/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3442 - accuracy: 0.8479
+Epoch 229/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3398 - accuracy: 0.8533
+Epoch 230/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3333 - accuracy: 0.8529
+Epoch 231/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3405 - accuracy: 0.8492
+Epoch 232/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3383 - accuracy: 0.8499
+Epoch 233/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3436 - accuracy: 0.8516
+Epoch 234/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3393 - accuracy: 0.8516
+Epoch 235/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3357 - accuracy: 0.8520
+Epoch 236/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3415 - accuracy: 0.8528
+Epoch 237/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3385 - accuracy: 0.8536
+Epoch 238/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3350 - accuracy: 0.8555
+Epoch 239/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3412 - accuracy: 0.8492
+Epoch 240/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3398 - accuracy: 0.8503
+Epoch 241/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3384 - accuracy: 0.8556
+Epoch 242/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3412 - accuracy: 0.8508
+Epoch 243/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3339 - accuracy: 0.8556
+Epoch 244/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3425 - accuracy: 0.8544
+Epoch 245/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3389 - accuracy: 0.8559
+Epoch 246/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3372 - accuracy: 0.8527
+Epoch 247/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3377 - accuracy: 0.8516
+Epoch 248/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3346 - accuracy: 0.8520
+Epoch 249/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3391 - accuracy: 0.8520
+Epoch 250/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3380 - accuracy: 0.8528
+Epoch 251/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3411 - accuracy: 0.8528
+Epoch 252/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3388 - accuracy: 0.8517
+Epoch 253/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3424 - accuracy: 0.8509
+Epoch 254/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3399 - accuracy: 0.8513
+Epoch 255/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3412 - accuracy: 0.8504
+Epoch 256/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3396 - accuracy: 0.8539
+Epoch 257/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3409 - accuracy: 0.8528
+Epoch 258/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3391 - accuracy: 0.8545
+Epoch 259/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3357 - accuracy: 0.8497
+Epoch 260/500
+7500/7500 [==============================] - 0s 41us/step - loss: 0.3381 - accuracy: 0.8552
+Epoch 261/500
+7500/7500 [==============================] - 0s 48us/step - loss: 0.3396 - accuracy: 0.8479
+Epoch 262/500
+7500/7500 [==============================] - 0s 44us/step - loss: 0.3394 - accuracy: 0.8516
+Epoch 263/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3397 - accuracy: 0.8551
+Epoch 264/500
+7500/7500 [==============================] - 0s 40us/step - loss: 0.3364 - accuracy: 0.8541
+Epoch 265/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3343 - accuracy: 0.8540
+Epoch 266/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3301 - accuracy: 0.8544
+Epoch 267/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3355 - accuracy: 0.8531
+Epoch 268/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3398 - accuracy: 0.8515
+Epoch 269/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3338 - accuracy: 0.8568
+Epoch 270/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3381 - accuracy: 0.8544
+Epoch 271/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3367 - accuracy: 0.85 - 0s 33us/step - loss: 0.3380 - accuracy: 0.8541
+Epoch 272/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3319 - accuracy: 0.8547
+Epoch 273/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3386 - accuracy: 0.8535
+Epoch 274/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3392 - accuracy: 0.8544
+Epoch 275/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3386 - accuracy: 0.8492
+Epoch 276/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3382 - accuracy: 0.8540
+Epoch 277/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3373 - accuracy: 0.8525
+Epoch 278/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3314 - accuracy: 0.8515
+Epoch 279/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3347 - accuracy: 0.8500
+Epoch 280/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3366 - accuracy: 0.8536
+Epoch 281/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3381 - accuracy: 0.8508
+Epoch 282/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3332 - accuracy: 0.8565
+Epoch 283/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3324 - accuracy: 0.8572
+Epoch 284/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3299 - accuracy: 0.8567
+Epoch 285/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3370 - accuracy: 0.8553
+Epoch 286/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3387 - accuracy: 0.8516
+Epoch 287/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3341 - accuracy: 0.8563
+Epoch 288/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3348 - accuracy: 0.8513
+Epoch 289/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3401 - accuracy: 0.8519
+Epoch 290/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3367 - accuracy: 0.8528
+Epoch 291/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3357 - accuracy: 0.8499
+Epoch 292/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3325 - accuracy: 0.8565
+Epoch 293/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3352 - accuracy: 0.8548
+Epoch 294/500
+7500/7500 [==============================] - 0s 30us/step - loss: 0.3364 - accuracy: 0.8524
+Epoch 295/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3321 - accuracy: 0.8536
+Epoch 296/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3343 - accuracy: 0.8577
+Epoch 297/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3358 - accuracy: 0.8537
+Epoch 298/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3327 - accuracy: 0.8556
+Epoch 299/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3355 - accuracy: 0.8555
+Epoch 300/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3372 - accuracy: 0.8508
+Epoch 301/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3365 - accuracy: 0.8519
+Epoch 302/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3381 - accuracy: 0.8556
+Epoch 303/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3349 - accuracy: 0.8533
+Epoch 304/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3357 - accuracy: 0.8531
+Epoch 305/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3363 - accuracy: 0.8557
+Epoch 306/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3358 - accuracy: 0.8523
+Epoch 307/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3389 - accuracy: 0.8519
+Epoch 308/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3326 - accuracy: 0.8523
+Epoch 309/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3404 - accuracy: 0.8531
+Epoch 310/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3363 - accuracy: 0.8561
+Epoch 311/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3353 - accuracy: 0.8544
+Epoch 312/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3370 - accuracy: 0.8529
+Epoch 313/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3397 - accuracy: 0.8517
+Epoch 314/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3329 - accuracy: 0.8571
+Epoch 315/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3381 - accuracy: 0.8513
+Epoch 316/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3358 - accuracy: 0.8533
+Epoch 317/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3346 - accuracy: 0.8537
+Epoch 318/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3386 - accuracy: 0.8523
+Epoch 319/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3347 - accuracy: 0.85 - 0s 33us/step - loss: 0.3359 - accuracy: 0.8505
+Epoch 320/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3313 - accuracy: 0.8577
+Epoch 321/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3315 - accuracy: 0.8532
+Epoch 322/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3314 - accuracy: 0.8568
+Epoch 323/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3342 - accuracy: 0.8536
+Epoch 324/500
+7500/7500 [==============================] - 0s 41us/step - loss: 0.3390 - accuracy: 0.8505
+Epoch 325/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3351 - accuracy: 0.8527
+Epoch 326/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3350 - accuracy: 0.8537
+Epoch 327/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3370 - accuracy: 0.8567
+Epoch 328/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3354 - accuracy: 0.8509
+Epoch 329/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3366 - accuracy: 0.8531
+Epoch 330/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3314 - accuracy: 0.8571
+Epoch 331/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3383 - accuracy: 0.8580
+Epoch 332/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3366 - accuracy: 0.8544
+Epoch 333/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3361 - accuracy: 0.8545
+Epoch 334/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3338 - accuracy: 0.8536
+Epoch 335/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3330 - accuracy: 0.8521
+Epoch 336/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3313 - accuracy: 0.8579
+Epoch 337/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3343 - accuracy: 0.8553
+Epoch 338/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3362 - accuracy: 0.8577
+Epoch 339/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3342 - accuracy: 0.8543 0s - loss: 0.3198 - accuracy
+Epoch 340/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3359 - accuracy: 0.8563
+Epoch 341/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3308 - accuracy: 0.8555
+Epoch 342/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3322 - accuracy: 0.8576
+Epoch 343/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3334 - accuracy: 0.8563
+Epoch 344/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3322 - accuracy: 0.8591
+Epoch 345/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3317 - accuracy: 0.8588
+Epoch 346/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3347 - accuracy: 0.8525
+Epoch 347/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3345 - accuracy: 0.8577
+Epoch 348/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3328 - accuracy: 0.8519
+Epoch 349/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3374 - accuracy: 0.8528
+Epoch 350/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3345 - accuracy: 0.8551
+Epoch 351/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3317 - accuracy: 0.8583
+Epoch 352/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3295 - accuracy: 0.8555
+Epoch 353/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3321 - accuracy: 0.8541
+Epoch 354/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3311 - accuracy: 0.8515
+Epoch 355/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3325 - accuracy: 0.8560
+Epoch 356/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3298 - accuracy: 0.8564
+Epoch 357/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3269 - accuracy: 0.8596
+Epoch 358/500
+7500/7500 [==============================] - 0s 42us/step - loss: 0.3309 - accuracy: 0.8581
+Epoch 359/500
+7500/7500 [==============================] - 0s 40us/step - loss: 0.3364 - accuracy: 0.8543
+Epoch 360/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3333 - accuracy: 0.8545
+Epoch 361/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3317 - accuracy: 0.8565
+Epoch 362/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3305 - accuracy: 0.8543
+Epoch 363/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3334 - accuracy: 0.8548
+Epoch 364/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3312 - accuracy: 0.8572
+Epoch 365/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3312 - accuracy: 0.8539
+Epoch 366/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3299 - accuracy: 0.8568
+Epoch 367/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3316 - accuracy: 0.8564
+Epoch 368/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3340 - accuracy: 0.8579
+Epoch 369/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3354 - accuracy: 0.8544
+Epoch 370/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3325 - accuracy: 0.8531
+Epoch 371/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3295 - accuracy: 0.8567
+Epoch 372/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3311 - accuracy: 0.8576
+Epoch 373/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3358 - accuracy: 0.8548
+Epoch 374/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3298 - accuracy: 0.8563
+Epoch 375/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3351 - accuracy: 0.8579
+Epoch 376/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3293 - accuracy: 0.8573
+Epoch 377/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3337 - accuracy: 0.8557
+Epoch 378/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3359 - accuracy: 0.8557
+Epoch 379/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3312 - accuracy: 0.8553
+Epoch 380/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3276 - accuracy: 0.8603
+Epoch 381/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3337 - accuracy: 0.8552
+Epoch 382/500
+7500/7500 [==============================] - 0s 44us/step - loss: 0.3331 - accuracy: 0.8549
+Epoch 383/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3286 - accuracy: 0.8580
+Epoch 384/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3302 - accuracy: 0.8573
+Epoch 385/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3342 - accuracy: 0.8535
+Epoch 386/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3335 - accuracy: 0.8545
+Epoch 387/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3333 - accuracy: 0.8565
+Epoch 388/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3336 - accuracy: 0.8564
+Epoch 389/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3302 - accuracy: 0.8539
+Epoch 390/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3291 - accuracy: 0.8545
+Epoch 391/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3303 - accuracy: 0.8572
+Epoch 392/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3293 - accuracy: 0.8551
+Epoch 393/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3356 - accuracy: 0.8521
+Epoch 394/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3290 - accuracy: 0.8559
+Epoch 395/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3310 - accuracy: 0.8551
+Epoch 396/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3333 - accuracy: 0.8529
+Epoch 397/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3331 - accuracy: 0.8565
+Epoch 398/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3287 - accuracy: 0.8572
+Epoch 399/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3344 - accuracy: 0.85 - 0s 31us/step - loss: 0.3348 - accuracy: 0.8560
+Epoch 400/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3277 - accuracy: 0.8601
+Epoch 401/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3309 - accuracy: 0.8580
+Epoch 402/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3353 - accuracy: 0.8513
+Epoch 403/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3283 - accuracy: 0.8579
+Epoch 404/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3271 - accuracy: 0.8585
+Epoch 405/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3325 - accuracy: 0.8545
+Epoch 406/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3286 - accuracy: 0.8608
+Epoch 407/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3330 - accuracy: 0.8556
+Epoch 408/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3287 - accuracy: 0.8561
+Epoch 409/500
+7500/7500 [==============================] - 0s 37us/step - loss: 0.3233 - accuracy: 0.8595
+Epoch 410/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3326 - accuracy: 0.8573
+Epoch 411/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3323 - accuracy: 0.85 - 0s 32us/step - loss: 0.3309 - accuracy: 0.8553
+Epoch 412/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3304 - accuracy: 0.8532
+Epoch 413/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3290 - accuracy: 0.8583
+Epoch 414/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3302 - accuracy: 0.8549
+Epoch 415/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3267 - accuracy: 0.8567
+Epoch 416/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3324 - accuracy: 0.8573
+Epoch 417/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3283 - accuracy: 0.8584
+Epoch 418/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3236 - accuracy: 0.8581
+Epoch 419/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3292 - accuracy: 0.8597
+Epoch 420/500
+7500/7500 [==============================] - 0s 39us/step - loss: 0.3294 - accuracy: 0.8580
+Epoch 421/500
+7500/7500 [==============================] - 0s 38us/step - loss: 0.3274 - accuracy: 0.8589
+Epoch 422/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3260 - accuracy: 0.8564
+Epoch 423/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3303 - accuracy: 0.8535
+Epoch 424/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3289 - accuracy: 0.8585
+Epoch 425/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3255 - accuracy: 0.8579
+Epoch 426/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3259 - accuracy: 0.8581
+Epoch 427/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3307 - accuracy: 0.8567
+Epoch 428/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3308 - accuracy: 0.8539
+Epoch 429/500
+7500/7500 [==============================] - 0s 30us/step - loss: 0.3263 - accuracy: 0.8603
+Epoch 430/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3258 - accuracy: 0.8568
+Epoch 431/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3320 - accuracy: 0.8549
+Epoch 432/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3246 - accuracy: 0.8564
+Epoch 433/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3273 - accuracy: 0.8599
+Epoch 434/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3225 - accuracy: 0.8613
+Epoch 435/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3252 - accuracy: 0.8605
+Epoch 436/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3280 - accuracy: 0.8589
+Epoch 437/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3299 - accuracy: 0.8592
+Epoch 438/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3279 - accuracy: 0.8584
+Epoch 439/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3299 - accuracy: 0.8596
+Epoch 440/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3276 - accuracy: 0.8597
+Epoch 441/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3302 - accuracy: 0.8553
+Epoch 442/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3276 - accuracy: 0.8589
+Epoch 443/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3258 - accuracy: 0.8595
+Epoch 444/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3314 - accuracy: 0.8540
+Epoch 445/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3296 - accuracy: 0.8577
+Epoch 446/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3291 - accuracy: 0.8547
+Epoch 447/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3254 - accuracy: 0.8561
+Epoch 448/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3262 - accuracy: 0.8587
+Epoch 449/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3320 - accuracy: 0.8579
+Epoch 450/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3279 - accuracy: 0.8583
+Epoch 451/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3252 - accuracy: 0.8612
+Epoch 452/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3320 - accuracy: 0.8555
+Epoch 453/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3249 - accuracy: 0.8584
+Epoch 454/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3260 - accuracy: 0.8539
+Epoch 455/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3237 - accuracy: 0.8592
+Epoch 456/500
+7500/7500 [==============================] - 0s 36us/step - loss: 0.3244 - accuracy: 0.8603
+Epoch 457/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3312 - accuracy: 0.85 - 0s 32us/step - loss: 0.3308 - accuracy: 0.8523
+Epoch 458/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3259 - accuracy: 0.8581
+Epoch 459/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3281 - accuracy: 0.8573
+Epoch 460/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3261 - accuracy: 0.8601
+Epoch 461/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3252 - accuracy: 0.8591
+Epoch 462/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3242 - accuracy: 0.8624
+Epoch 463/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3253 - accuracy: 0.8619
+Epoch 464/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3205 - accuracy: 0.8616
+Epoch 465/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3244 - accuracy: 0.8587
+Epoch 466/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3193 - accuracy: 0.8596
+Epoch 467/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3233 - accuracy: 0.8592
+Epoch 468/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3251 - accuracy: 0.8591
+Epoch 469/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3288 - accuracy: 0.85 - 0s 34us/step - loss: 0.3259 - accuracy: 0.8605
+Epoch 470/500
+7500/7500 [==============================] - 0s 31us/step - loss: 0.3250 - accuracy: 0.8587
+Epoch 471/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3206 - accuracy: 0.8589
+Epoch 472/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3252 - accuracy: 0.8552
+Epoch 473/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3239 - accuracy: 0.8611
+Epoch 474/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3248 - accuracy: 0.8583
+Epoch 475/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3244 - accuracy: 0.8599
+Epoch 476/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3244 - accuracy: 0.8612
+Epoch 477/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3291 - accuracy: 0.8571
+Epoch 478/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3279 - accuracy: 0.8600
+Epoch 479/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3270 - accuracy: 0.8571
+Epoch 480/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3264 - accuracy: 0.8599
+Epoch 481/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3243 - accuracy: 0.8600
+Epoch 482/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3252 - accuracy: 0.8581
+Epoch 483/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3250 - accuracy: 0.8613
+Epoch 484/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3263 - accuracy: 0.8572
+Epoch 485/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3224 - accuracy: 0.8613
+Epoch 486/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3228 - accuracy: 0.8633
+Epoch 487/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3217 - accuracy: 0.8621
+Epoch 488/500
+7500/7500 [==============================] - 0s 35us/step - loss: 0.3271 - accuracy: 0.8577
+Epoch 489/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3230 - accuracy: 0.8608
+Epoch 490/500
+7500/7500 [==============================] - ETA: 0s - loss: 0.3215 - accuracy: 0.86 - 0s 33us/step - loss: 0.3209 - accuracy: 0.8617
+Epoch 491/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3239 - accuracy: 0.8600
+Epoch 492/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3225 - accuracy: 0.8607
+Epoch 493/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3233 - accuracy: 0.8623
+Epoch 494/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3230 - accuracy: 0.8611
+Epoch 495/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3223 - accuracy: 0.8573
+Epoch 496/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3266 - accuracy: 0.8623
+Epoch 497/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3205 - accuracy: 0.8585
+Epoch 498/500
+7500/7500 [==============================] - 0s 34us/step - loss: 0.3207 - accuracy: 0.8620
+Epoch 499/500
+7500/7500 [==============================] - 0s 33us/step - loss: 0.3208 - accuracy: 0.8616
+Epoch 500/500
+7500/7500 [==============================] - 0s 32us/step - loss: 0.3202 - accuracy: 0.8589
+GridSearchCV(cv=3, error_score='raise-deprecating',
+             estimator=<keras.wrappers.scikit_learn.KerasClassifier object at 0x00000189E0391508>,
+             iid='warn', n_jobs=-1,
+             param_grid={'dropout_rate': [0.0, 0.2, 0.4, 0.6, 0.8],
+                         'neurons': [20, 40, 80, 160],
+                         'second_layer': [True, False]},
+             pre_dispatch='2*n_jobs', refit=True, return_train_score=False,
+             scoring='accuracy', verbose=1)
+gridNN
+##need to do nn dependent on the best estimator
+gridNN
+GridSearchCV(cv=3, error_score='raise-deprecating',
+             estimator=<keras.wrappers.scikit_learn.KerasClassifier object at 0x00000189DBE45308>,
+             iid='warn', n_jobs=-1,
+             param_grid={'dropout_rate': [0.0, 0.2, 0.4, 0.6, 0.8],
+                         'neurons': [20, 40, 80, 160],
+                         'second_layer': [True, False]},
+             pre_dispatch='2*n_jobs', refit=True, return_train_score=False,
+             scoring='accuracy', verbose=1)
+​
+#results = pd.DataFrame(gridNN.best_params_.items())
+#results.to_csv('svc_clf_acc-random-grid-search-results-01.csv', index=False)
+​
+​
+#Predict values based on new parameters
+y_pred_acc = gridNN.predict(X_test)
+​
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+​
+#create table and add results to it
+#models_scores_table = pd.DataFrame(index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+models_scores_table["NN"] =    np.array([accuracy_score(y_test,y_pred_acc),precision_score(y_test,y_pred_acc),recall_score(y_test,y_pred_acc),f1_score(y_test,y_pred_acc)])
+#(Grid Search) Confusion matrix
+cm = metrics.confusion_matrix(y_test,y_pred_acc)/cm.sum()
+cm1 = cm/cm.sum()
+​
+score = metrics.accuracy_score(y_test,y_pred_acc)
+#Plot this
+​
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Purples'
+            , fmt='.2f'
+           )
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Confusion Matrix of NN Model \n Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+ax.xaxis.set_ticklabels(['Hadron', 'Gamma']); ax.yaxis.set_ticklabels(['Hadron ', 'Gamma']);
+​
+​
+figure(num=None, figsize=(6, 4), dpi=80, facecolor='w', edgecolor='k')
+y_pred_proba=gridNN.predict_proba(X_test)[::,1]
+fpr,tpr,_=metrics.roc_curve(y_test,y_pred_proba)
+auc=metrics.roc_auc_score(y_test,y_pred_proba)
+plt.plot(fpr,tpr,label="auc="+str(auc))
+plt.legend(loc=4)
+plt.title('ROC Curve - NN', size = 20)
+plt.xlabel('1 - Specificity')
+plt.ylabel('Sensitivity');
+2500/2500 [==============================] - 0s 45us/step
+Accuracy Score : 0.868
+Precision Score : 0.9123575810692375
+Recall Score : 0.8190401258851299
+F1 Score : 0.8631840796019901
+2500/2500 [==============================] - 0s 12us/step
+
+
+models_scores_table
+Logistic Regression	LDA	QDA	Random Forest	Gradient Boost	XGBoost	SVM	NN	Decision Tree
+Accuracy	0.765600	0.761600	0.717600	0.862800	0.842000	0.856400	0.850400	0.868000	0.814400
+Precision	0.810517	0.821735	0.891817	0.900000	0.877586	0.894464	0.906618	0.912358	0.871205
+Recall	0.703383	0.678206	0.505901	0.821400	0.800944	0.813533	0.786782	0.819040	0.745083
+F1 Score	0.753159	0.743103	0.645582	0.858906	0.837515	0.852081	0.842460	0.863184	0.803223
+models_scores_tableT = models_scores_table.transpose()
+models_scores_tableT
+Accuracy	Precision	Recall	F1 Score
+Logistic Regression	0.7656	0.810517	0.703383	0.753159
+LDA	0.7616	0.821735	0.678206	0.743103
+QDA	0.7176	0.891817	0.505901	0.645582
+Random Forest	0.8628	0.900000	0.821400	0.858906
+Gradient Boost	0.8420	0.877586	0.800944	0.837515
+XGBoost	0.8564	0.894464	0.813533	0.852081
+SVM	0.8504	0.906618	0.786782	0.842460
+NN	0.8680	0.912358	0.819040	0.863184
+Decision Tree	0.8144	0.871205	0.745083	0.803223
+from sklearn.decomposition import PCA
+scaler=StandardScaler()
+scaler.fit(models_scores_tableT)
+models_scores_table1=scaler.transform(models_scores_tableT)
+pca=PCA()
+pca.fit(models_scores_table1)
+PCA(copy=True, iterated_power='auto', n_components=None, random_state=None,
+    svd_solver='auto', tol=0.0, whiten=False)
+np.cumsum(pca.explained_variance_ratio_)
+array([0.80906791, 0.9998699 , 0.99998932, 1.        ])
+(x,y)
+p=pca.fit_transform(models_scores_table1)
+y = [1, 3.77284, 3.52623, 3.51468, 3.02199]
+z = [0.15, 0.3, 0.45, 0.6, 0.75]
+n = [58, 651, 393, 203, 123]
+​
+plt.scatter(x=p[:,0],y=p[:,1])
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+# for i, txt in enumerate(models_scores_table.columns):
+#     ax.annotate(txt, (p[:,0][i], p[:,1][i]))
+for i in range(len(models_scores_table.columns)):
+    plt.annotate(models_scores_table.columns[i], # this is the text
+                 (p[:,0][i], p[:,1][i]), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+
+p[:,1][1]
+for x,y in zip(xs,ys):
+
+    label = f"({x},{y})"
+
+    plt.annotate(label, # this is the text
+                 (x,y), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+ #using some dummy data for this example
+xs = np.random.randint( 0, 10, size=10)
+ys = np.random.randint(-5, 5,  size=10)
+​
+# plot the points
+plt.scatter(xs,ys)
+​
+# zip joins x and y coordinates in pairs
+for x,y in zip(xs,ys):
+​
+    label = f"({x},{y})"
+​
+    plt.annotate(label, # this is the text
+                 (x,y), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+
+label
+enumerate(models_scores_table.columns)
+<enumerate at 0x189e128b228>
+pca=PCA(n_components=2)
+p = pca.fit_transform(models_scores_table1)
+loadings = pd.DataFrame(pca.components_.T, columns=['PC1', 'PC2'], index=models_scores_tableT.columns)
+loadings
+PC1	PC2
+Accuracy	-0.555847	-0.007286
+Precision	-0.337699	0.909220
+Recall	-0.527220	-0.362511
+F1 Score	-0.546838	-0.204576
+1
+p[:,0][1]
+1.9157375980422335
+models_scores_table.columns
+pd.DataFrame(p, columns=['PC1', 'PC2'], index=models_scores_table.columns)
+PC1	PC2
+Logistic Regression	1.765105	-1.445549
+LDA	1.915738	-1.024678
+QDA	3.420752	1.766692
+Random Forest	-1.651047	0.145345
+Gradient Boost	-0.924015	-0.302925
+XGBoost	-1.430164	0.049933
+SVM	-1.261860	0.500408
+NN	-1.849758	0.466846
+Decision Tree	0.015247	-0.156073

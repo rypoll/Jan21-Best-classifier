@@ -1,0 +1,234 @@
+So we are going to do these things
+1. logistic regression
+2. discriminant analysis - need to do qda 
+3. decision trees
+3a. random tree
+4. support vector machines
+5. neural networks
+
+
+possible to do 
+Evaluation using Cross Validation
+A great alternative is to use Scikit-Learn's cross-validation feature.
+ The following performs K-fold cross validation; it randomly splits the 
+training set into 10 distinct subsets called folds, then it trains and 
+evaluates the Models 10 times, picking a different fold for evaluation 
+every time and training on the other 9 folds
+
+from 
+https://www.codementor.io/@innat_2k14/kaggl-titanic-a-machine-learning-from-disaster-modelling-part-2-10gfjtm0p3
+
+NOTE - I CAN ALWAYS USE PYTHON TO DO STUFF AND ATTACH THE CODE LATER ON
+
+1. do it in jup notebook, can use notebook to pdf [but it doesn't produce individual pages]
+2. rememeber can toggle parts of code using footie notebook i made
+3. start with logistic regression
+
+LOGISTIC DONE - 76% ACCURACY
+
+cm=metrics.confusion_matrix(y_test,y_pred)
+cm1 = cm/cm.sum()
+cm1
+
+score = metrics.accuracy_score(y_test,y_pred)
+
+
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='Blues_r')
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+
+
+sensitivity=cm[0,0]/(cm[0,0]+cm[0,1])
+sensitivity
+
+specificity=cm[1,1]/(cm[1,0]+cm[1,1])
+specificity
+
+metrics.recall_score(y_test,y_pred)
+
+metrics.precision_score(y_test,y_pred)
+
+
+age - (2020 - year)
+
+31 - (2020 - 2013)
+
+
+
+
+
+
+- do assignment
+- at end work on ppersonal project
+
+1. assignment, do neural network
+2. also need to do grid search on all methods!
+
+
+plt.plot(epochs,loss,"b",label="Training loss")
+plt.plot(epochs,val_loss,"r",label="Validation loss")
+plt.title("Training and validation loss")
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.legend()
+
+
+
+13/01 
+0. rerun whole program to get normalised results for svm
+1. DO GRID SEARCH on random forest and svm
+USE NORMALISED VARIABLES ON svm ANALYSIS
+2. dont need to normalise/standardise for all anaylsis, only svm and neural networks
+DONE - 3. play around with neural network options to try t oget better data
+done this, looks like 2 layers is the best, and playing with amout nodes, want lots of nodes
+
+
+see here which method is best to use, it also quotes a paper
+https://stats.stackexchange.com/questions/192086/svm-vs-neural-network-vs-random-forest-classifier-comparison-on-multi-class-prob/192116
+
+
+unormalised, got 0.82 accuracy
+normalised got 84 accuracy
+
+
+ACTUALLY WITH GRADIENT BOOST, SAW INCREASE IN ACCURACY FROM 0.84 TO 0.85
+
+USE ACCURACY BECAUSE IT'S A BALANCED PROBLEM [SAME NUMBER OF G AND H] AND EASIE TO INTERPRET
+
+There are real benefits to using both. The big question is when.
+ The first big difference is that you calculate accuracy on the 
+predicted classes while you calculate ROC AUC on predicted scores
+. That means you will have to find the optimal threshold for your
+ problem. Moreover, accuracy looks at fractions of correctly 
+positive and negative classes. That means if our problem is highl
+y imbalanced, we get a really high accuracy score by simply 
+that all observations belong to the majority class. On the flip s
+ide, if your problem is balanced and you care about both positive 
+and negative predictions, accuracy is a good choice because it is 
+really simple and easy to interpret. However, you should always take
+ an imbalance into consideration when looking at accuracy. Another 
+thing to remember is that ROC AUC is especially good at ranking predictions. 
+Because of that, if you have a problem where sorting your observations is what
+ you care about ROC AUC is likely what you are looking for.
+
+
+#Predict values based on new parameters
+y_pred_acc = clf.predict(X_test)
+
+# New Model Evaluation metrics 
+print('Accuracy Score : ' + str(accuracy_score(y_test,y_pred_acc)))
+print('Precision Score : ' + str(precision_score(y_test,y_pred_acc)))
+print('Recall Score : ' + str(recall_score(y_test,y_pred_acc)))
+print('F1 Score : ' + str(f1_score(y_test,y_pred_acc)))
+
+#Logistic Regression (Grid Search) Confusion matrix
+confusion_matrix(y_test,y_pred_acc)
+
+
+
+
+cm=metrics.confusion_matrix(y_test,y_pred_acc)
+cm
+cm1 = cm/cm.sum()
+score = metrics.accuracy_score(y_test,y_pred_acc)
+score
+
+fig, ax = plt.subplots(1)
+#plt.figure(figsize=(6,6))
+sns.heatmap(cm1,annot=True,linewidths=.5,square=True,cmap='OrRd')
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title='Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title,size=15)
+ax.set_ylim(2, -0.0)
+
+
+
+do all analysis in one, make table with the stats
+then at end display all confusion matrix in one block, instead of one by one
+then as an appendix, can do more charts to show off
+
+
+Assignment 2.ipynb
+jupyter nbconvert "Assignment 2 Final Clean v1.ipynb" --to=html --TemplateExporter.exclude_input=True
+jupyter nbconvert "Assignment 2 Final Clean v1.ipynb" --md--TemplateExporter.exclude_input=True
+THIS WORKED 
+
+first change directory by doing this
+cd C:/Users/T430/Google Drive/00 - Masters/Machine Learning/Assignment 2/
+
+
+make sure u hide the warnings
+
+can do a pca on these guys to put them into groups, to see which metrics are similar
+
+note down best estimators for each technique, so can replicate easy.
+add legend and title to mds plot
+ask whether 2 dimensions is enough [find eigenvalues]
+
+mention for time issues, cv =3. cv = 5 would be better
+
+weakness is couldn't use all params i wanted to
+if wanted, could add extra 2 rows for mean of values and say 
+
+mention random forests can put in more params and not increase time so much, so for beginner
+who cant antpicpate the time of grid search, this is better. rf offers that advantage.
+
+more params seemed to increase the grid search exponentially of the boosts and svm
+
+qda accuracy doesnt mathc up with confusion matrix accuracy, check this
+
+say that nn offers a bit more predcitaility as epochs increase accurac a lot [0.82 to 0.87] and 
+it seems to increase the time by not a lot, almost linearly in fashion, not as exponential
+went from 0.82 to 0.87 in 90 min
+
+
+table of best results?
+
+for pca, qda is high cos perform poorly on other metrics with so higher pc1, and high 
+pc2 also for performing poorly but a big part due to having high precision
+
+for lda and qda, they don't perform so well on the metrics so have a high pc1, they have
+a low pc2 for scoring relatively poorly for precision.
+pca1 = overall performance, low pc1 = good performance
+pc2 = precision. low pc2 = poor precision, high pc2 = good precision
+
+
+1. incorporate mds - done
+2. caption images - done
+3. include best parameters of the neural network and perhaps all networks - need to run whole file
+4. find out why the means of the mds are equal but opposite. - 
+5. convert to pdf and put it in nice form. amendum depending on space can be charts or just the code
+
+
+
+scale was 84, pages 2-6, print as pdf, and do 
+
+Assignment 2.ipynb
+jupyter nbconvert "Assignment 2 Final Clean v1.ipynb" --to=html --TemplateExporter.exclude_input=True
+
+THIS WORKED 
+
+first change directory by doing this
+cd C:/Users/T430/Google Drive/00 - Masters/Machine Learning/Assignment 2/
+
+oragnise github version then make a comment at top saying can visit my github
+run whole thing before upload to githb so there's no errors
+
+see post made about qda on uni board
+I noticed similar issues myself,
+
+
+it seems to me that QDA suffers from requiring the underlying assumptions on the data being truer than LDA or other linear methods, which kind of makes sense: if the underlying distributions are far from normal, skewed or heavy tailed your predictions of the boundaries are going to be worse: as I recall the class that 'wins' in QDA is the one whose fitted gaussian has highest likelyhood in that region: since QDA fits both a mean and a standard deviation to each group, you are just more likely make a bad estimate when a gaussian is not a good fit.
+
+https://thatdatatho.com/2018/02/19/assumption-checking-lda-vs-qda-r-tutorial-2/
+
+qda assumptions guide
+
+
+sharpiro wilk test

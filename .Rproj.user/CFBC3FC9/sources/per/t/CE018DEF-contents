@@ -1,0 +1,663 @@
+---
+title: "MAS61007OCT-215003964-Assignment1"
+author: "Ryan Pollard"
+date: "07/12/2020"
+fig_width: 3
+fig_height: 2 
+fontsize: 8pt
+output:
+  html_document:
+    css: style.css
+  pdf_document: default
+---
+
+```{r setup, include= FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+knitr::opts_chunk$set(fig.align='center')
+knitr::opts_knit$set(root.dir='C:/Users/T430/Google Drive/00 - Masters/Machine Learning/Assignment 1 (due 15 Dec)')
+knitr::opts_chunk$set(fig.width=4, fig.height=3) 
+
+```
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+setwd("C:/Users/T430/Google Drive/00 - Masters/Machine Learning/Assignment 1 (due 15 Dec)")
+
+```
+
+```{r message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+#source("C:/Users/T430/Google Drive/00 - Masters/Machine Learning/Assignment 1 (due 15 Dec)/000 - Setup.R")
+library(tidyverse)
+library(Hmisc)
+library(ggpubr)
+source("http://www.sthda.com/upload/rquery_cormat.r")
+ass1 <- read_csv("ass1.csv")
+#Get rid of NA
+ass1 <- subset(ass1, X1 != "NA")
+#devtools::install_github("laresbernardo/lares")
+library(lares)
+
+
+rubies <- read_csv("rubies.csv")
+
+
+
+```
+
+NB: All answers outside R code are given to 2dp.
+Some outputs and charts have been omitted due to page limit. The sizes of the charts are not ideal but I did not want to omit some things I put time into producing.
+
+# PART 1 
+\newline
+### 1. Give the correlation between variables V8 and V9.
+```{r 1.1, echo=FALSE, message=FALSE, warning=FALSE}
+#cor(ass1$V8, ass1$V9)
+
+```
+
+
+
+
+<!-- <center> -->
+
+ $ρ = 0.46$
+
+<!-- </center> -->
+
+
+
+### 2. Which pair of variables has the greatest correlation?
+
+
+```{r heatmap, echo=FALSE, fig.align='center', fig.cap="Figure 1.2a left: Correlation matrix heatmap (v3, v4) and (v4, v7) look to be most correlated. Figure 1.2b right: Ordered list of highest correlated pairs of variables", message=FALSE, warning=FALSE, ,out.height='25%', out.width='25%', fig.show="hold"}
+col<- colorRampPalette(c("blue", "white", "red"))(20)
+cormat<-rquery.cormat(ass1[2:10], type="full", col=col)
+#list
+library(lares)
+corr_cross(ass1[2:10], # name of dataset
+           #max_pvalue = 0.05, # display only significant correlations (at 5% level)
+           top = 10 # display top 10 couples of variables (by correlation coefficient)
+)
+
+```
+
+
+<!-- <div style= "float:right;position: relative; center: -300px;"> -->
+
+<!-- ```{r correlated_list, echo=FALSE, fig.align='center', fig.cap="Ordered list of highest correlated pairs of variables", message=FALSE, warning=FALSE, ,out.height='25%', out.width='25%'} -->
+<!-- library(lares) -->
+<!-- corr_cross(ass1[2:10], # name of dataset -->
+<!--            #max_pvalue = 0.05, # display only significant correlations (at 5% level) -->
+<!--            top = 10 # display top 10 couples of variables (by correlation coefficient) -->
+<!-- ) -->
+<!-- ``` -->
+<!-- </div> -->
+
+**Answer: ** As seen in figure 1.2, (v3, v4) are the most correlated with pearson correlation value of 0.54
+
+
+### 3. What is the trace of the variance matrix of your data set?
+
+```{r 1.3, echo=FALSE, message=FALSE, warning=FALSE}
+covariance <- cov(ass1[2:10])
+trace <- sum(diag(covariance))
+#trace
+
+
+```
+ $trace = 55.93$
+
+
+
+### 4. Plot the points on the first two principal components
+
+```{r 1.4, echo=FALSE, fig.align='center', fig.cap="Fig 1.4: Scatter plot of PCA1 and PCA2", warning=FALSE, ,out.height='25%', out.width='25%'}
+
+ass1.pca<-princomp(ass1[,2:10], cor=TRUE)
+
+library(ggthemes)
+library(forcats)
+library(ggplot2)
+mydata <- as.data.frame(predict(ass1.pca)[,1:2])
+
+ggplot(mydata, aes(x=Comp.1, y=Comp.2)) +
+  geom_point() +
+  annotate("point", x = 3.85, y = 0.768,  size = 4, colour = "red") +
+  annotate("text", x = 2.8, y = 0.768, colour = "red", label= "Ob11") +
+  #theme_economist() + 
+  #scale_colour_economist() +
+  labs(x = "PC1 (30.9% Variance)", y = "PC2 (19.6% Variance)") +
+  ggtitle("PC1 vs PC2")
+  #theme_economist()
+
+
+
+```
+
+### 5. What proportion of the information in the data set is given by the first 4 principal components?
+
+```{r 1.5, echo=FALSE, fig.align='center', fig.cap="Fig 1.5: Scree plot shows first 4 components account for ~77% of variance", message=FALSE, warning=FALSE, ,out.height='25%', out.width='25%'}
+
+library(ggplot2)
+ggscreeplot<-function(mydata,cor=F,maxcomp=10) {
+  my.pc<-princomp(mydata, cor=cor)
+  k<-min(dim(mydata),maxcomp)
+  x<-c(0:k)
+  y<-my.pc$sdev[1:k]*my.pc$sdev[1:k]
+  y<-c(0,y)
+  z<-100*cumsum(y)/sum(my.pc$sdev*my.pc$sdev)
+  
+  p<-ggplot(mapping=aes(x,z))
+  p<-p+xlab("Number of dimensions")+ylab("Cumulative percentage of total variance")
+  p<-p+ggtitle("Scree plot of variances")
+  p<-p+geom_segment(aes(x=0,y=100,xend=k,yend=100),colour="orange",linetype="dashed",size=1)
+  p<-p+ylim(c(0,100))+scale_y_continuous(breaks=c(0,20,40,60,80,100))
+  p<-p+geom_text(aes(label=x),colour="blue",nudge_y=2)
+  p+geom_line(colour="red",size=1)
+}
+
+ggscreeplot(ass1[,2:10],cor=TRUE)
+
+
+#summary(ass1.pca)
+
+```
+ **Answer: **0.77 (taken from summary of pca)
+ 
+### 6. LDA 
+ 
+
+```{r 1.6, echo=FALSE, fig.align='center', fig.cap="Fig 1.6a: Plot of LDA against index of observations (LD2 not present). Cross-hair point at index = 11 shows the test data predicted as being, wrongly, in group 2, but it belongs to group 1", message=FALSE, warning=FALSE, out.height='35%', out.width='35%'}
+
+library(MASS)
+asstrain <- ass1[2:11,3:10]
+asstest <- ass1[1,3:10]
+
+gptrain <-  ass1$V1[2:11]
+gptest <-  ass1$V1[1]
+
+attach(asstrain)
+
+asstr.lda<-lda(asstrain, gptrain)
+
+plot(predict(asstr.lda)$x[,1],pch=gptrain+14,col=gptrain+1,main="Part 1 Data: LD1 v Index", ylab="LD1", xlim=c(0,12))
+legend(9,1.5,c("Gp1", "Gp2"),
+       pch=c(15:18),col=c(2:5))
+
+
+points(x=11, predict(asstr.lda,asstest)$x,pch=3)
+
+#show prediction as table
+
+
+#predict(asstr.lda ,asstest)
+
+#table(gptest ,predict(asstr.lda, asstest)$class)
+
+
+```
+<div style= "float:right;position: relative; center: 200px;">
+```{r fig.width=3.2, fig.cap="Fig 1.6b: Conditionally formatted data",  fig.height=1.8,echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("1-6.png")
+ grid.raster(img)
+```
+</div>
+<div style="margin-bottom:10px;">
+</div> 
+**Answer: ** The observation 1 is in group 1, but it is predicted to be in group 2, hence the value of 1 in the 2 column. 
+
+  The two tables on the right show the values of observations and conditionally formatted. High values are more green, low values are more red. From the excel table above (a comparison of the data between V1 values), it looks as though that V9 is having a big sway on this, those in group 2 only have values of 0 and 9 for this variable, as does the first observation, therefore it's wrongly placed into group 2. The group 1s have values in between 1 and 8 inclusive. 
+ 
+
+
+<div style="margin-bottom:10px;">
+</div> 
+
+# PART 2
+
+### 1. Determine an appropriate number of principal components
+
+Looking at the R output for the cumulative proportion shows the variance acquired by choosing the number of PCs.
+<!-- <div style= "float:right;position: relative; center: -80px;"> -->
+
+```{r 2.1, echo=FALSE, fig.align='center', fig.cap="Fig 2.1: Scree plot showing a plateau at 4 PCAs", message=FALSE, warning=FALSE, out.height='25%', out.width='25%', fig.show="hold"}
+
+
+rubies.pca<-princomp(rubies[4:10], cor=TRUE)
+summary(rubies.pca)
+
+
+ggscreeplot(rubies[4:10],cor=TRUE)
+
+
+
+```
+<!-- </div> -->
+
+**Answer: ** The jump from 2 to 3 PCAs explains ~10% more variance, as does 3 to 4 PCAs, so no strong justification to drop the 4th PCA. The jump from the 4th PCA to the 5th only provides an extra ~3%, hence we see a pleatau in the figure 2.1 and discard the PCAs from 5 onwards
+ 
+<div style="margin-bottom:10px;">
+</div> 
+ 
+ 
+ 
+ 
+# 2. Give a description of the main sources of variation of the quality of the rubies 
+
+Here are the loading values for the principal components of the data - seen on the right hand side.
+<div style= "float:right;position: relative; center: -80px;">
+
+```{r 2.2, echo=FALSE, fig.align='center', fig.cap="Biplot of PCA1 (Comp.1) vs PCA2 (Comp.2) ", message=FALSE, warning=FALSE, out.height='25%', out.width='25%'}
+#biplot(rubies.pca)
+loadings(rubies.pca)
+
+```
+</div>
+
+
+
+
+<div style="margin-bottom:10px;">
+</div> 
+**Answer: ** The first two PCAs account for ~78% of the variance, therefore commentary on these PCs can explain a lot about the rubies. Between the 2 PCAs, the cut accounts for a lot of the variance, as does the angle, as the difference between the two loadings of these viarables is the largest (-0.187 and  0.715). 
+Using these PCs, the data can be split up into 4 groups, represented in figure 2.2a and these properties account for the variance of quality.
+1. High cut, big rubies with poor angle
+2. Huge rubies, lesser but still good cut, with average angle
+3. Low weight, low cut rubies, average angle and generally poor quality.
+4. Really high angle, thick and average to good rubies but offset with a poor cut and lower weight rubies.
+```{r fig.width=3, fig.height=3, fig.cap= "Fig 2.2a: Scatter plot of the first principal components, with quadrantes highlighted and detailing their different characteristics. Under these highlighted quadrants, arrows point in the direction where, if data is present in the direction of the arrow, the data exhibits the quality of the label of the arrow", echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("2.2.png")
+ grid.raster(img)
+```
+
+<div style="margin-bottom:20px;">
+</div> 
+
+# 3. What are the characteristics that distinguish the three countries of origin?
+<!-- # ```{r 2.3, echo=FALSE, fig.align='center', fig.cap="Biplot of PCA1 vs PCA2 with countries highlighted", message=FALSE, warning=FALSE, out.height='25%', out.width='25%'} -->
+<!-- # library(ggplot2) -->
+<!-- # library(grid) -->
+<!-- # library(gridExtra) -->
+<!-- # library(devtools) -->
+<!-- # library(ggfortify) -->
+<!-- # library(ggplot2) -->
+<!-- #library(plyr) -->
+<!-- # df <- rubies -->
+<!-- # df <- as.data.frame(rubies) -->
+<!-- # df_pca <- prcomp(df[4:10], scale.=TRUE) -->
+<!-- # rubies['wherecat'] <- lapply(rubies['where'] , factor) -->
+<!-- # rubies$wherecat <- revalue(rubies$wherecat, c("1"="Burma", "2" = "Thailand", "3" = "Cambodia")) -->
+<!-- # autoplot(df_pca, data = rubies, colour = 'wherecat') + -->
+<!-- #   guides(fill=FALSE) + -->
+<!-- #   labs(colour = "Country") -->
+<!-- # ``` -->
+<!-- #commented out due to flipping of loadings -->
+These charts highlights where the rubies from different countries sit in the comparison of PC1 with PC2 and PC2 with PC3
+<div style="margin-bottom:10px;">
+</div>
+
+
+```{r 2.3a, echo=FALSE, fig.align='center', fig.cap="Figure 2.3a left: PC2 vs PC1 for ruby data with highlited outliers. Figure 2.3b right: PC3 vs PC2 for ruby data", message=FALSE, warning=FALSE, out.height='45%', out.width='45%', fig.show="hold"}
+
+
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(devtools)
+library(ggfortify); library(ggplot2)
+rubies['wherecat'] <- lapply(rubies['where'] , factor)
+library(plyr)
+rubies$wherecat <- revalue(rubies$wherecat, c("1"="Burma", "2" = "Thailand", "3" = "Cambodia"))
+autoplot(rubies.pca, data = rubies, colour = 'wherecat', frame = TRUE, frame.type = 'norm', title = "Hello") +
+  guides(fill=FALSE) +
+  labs(colour = "Country") +
+  annotate("point", x = 0.359, y = 0.14,  size = 2, colour = "Blue") +
+  annotate("text", x = 0.28, y = 0.14, colour = "Blue", label= "Ob 51") +
+  annotate("point", x = -0.065, y = 0.39,  size = 2, colour = "red") +
+  annotate("text", x = -0.175, y = 0.39, colour = "red", label= "Ob 16") 
+
+
+
+autoplot(rubies.pca, data = rubies, colour = 'wherecat', frame = TRUE, frame.type = 'norm', x= 2, y =3) +
+  guides(fill=FALSE) +
+  labs(colour = "Country")
+
+
+```
+
+
+
+<!-- <center> -->
+
+<!-- ```{r fig.width=3, fig.height=3,echo=FALSE} -->
+<!-- library(png) -->
+<!-- library(grid) -->
+<!-- img <- readPNG("2-3flip.png") -->
+<!--  grid.raster(img) -->
+<!-- ``` -->
+
+<!-- </center> -->
+
+<div style="margin-bottom:10px;">
+</div> 
+
+The figre 2.3b, PC2 vs PC3 shows that all 3 groups are spread out quite evenly across the PC3 axis and bunched around 0, meaning it doesn't give great insight into the characteristics of the rubies. Therefore, the following commentary focuses on the figure 2.3a, PC1 vs PC2, to analyse the characteristics of the rubies.
+
+**Burma** : Generally the rubies sit in the bottom left and top left. A portion of Burmese rubies are poor, however a large  portion of rubies are also large with high cut, with average angle
+<div style="margin-bottom:10px;">
+</div> 
+**Thailand** : Generally low quality rubies with an average angle, however some are bigger rubies with a high cut and poor angle. Similar to Burmese rubies but poorer quality.
+<div style="margin-bottom:10px;">
+</div> 
+**Cambodia**: These rubies are generally good quality, scoring high in many attributes with a high angle, and generally good shape. However tend to be smaller and with a poor cut. 
+
+# 4. Outliers
+
+Using the identify function, we see 2 outliers in row 16 and row 51.
+<div style="margin-bottom:10px;">
+</div> 
+
+**Observation 16** : Shown on figure 2.3a. The Burmese ruby scores a little below average for the attributes except it has a maximum cut of 10 and one of the heighest weights of 1.22, therefore we see it sit in the top left. It's the ruby with the highest cut of 10, and the next highest is a distant 8, which makes it outlie so much. It's the 2nd biggest ruby, 2nd to the next observation.
+<div style="margin-bottom:10px;">
+</div> 
+**Observation 51** : Shown on figure 2.3a.  The Cambodian ruby scores really well in all the attributes, except cut (4/10), and see its point on the far right of the scatter plot. It is the thickest and best angled, most clear and biggest rubies in the data. It's an outlier due to having the best scores in 5 of the 7 attributes.
+
+# 5 and 6.  Do a logistic regression and LDA and discuss how successful is the classification
+<div style="margin-bottom:10px;">
+</div> 
+<div style= "float:right;position: relative; center: -80px;">
+```{r 2.5, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(devtools)
+library(ggfortify)
+library(ggplot2)
+library(plyr)
+rubies$wherecat <- revalue(rubies$wherecat, c("1"="Burma", "2" = "Thailand", "3" = "Cambodia"))
+
+df_log <- rubies[which(rubies$where!=3), ]
+
+df_log$where[df_log$where == 1 ] <- 0
+df_log$where[df_log$where == 2 ] <- 1
+
+mylogit <- glm(where ~ color + diameter + thickness + angle + cut + clarity + caratwt, data = df_log, family = "binomial")
+#summary(mylogit)
+
+column.prob<-predict(mylogit,df_log[,4:10],type="response")
+column.pred<-ifelse(column.prob>0.5,1,0)
+table(df_log$where,column.pred)
+
+```
+</div>
+For consistency, this analysis will not include price to serve as a comparison with the PCA.
+This logistic regression only includes 2 countries - Burma and Thailand.
+On the right we have the output of the logistic regression and a table comparing the predictions of the data vs the real values.
+The table shows there's a good amount of bad predictions (non-diagonal values).
+AIC, Null deviance and Residual deviance are relatively low which indicates good classification ability.
+The accuracy we see is 28 + 9/ 49 = 75% accuracy.
+<div style="margin-bottom:10px;">
+</div> 
+
+<div style= "float:right;position: relative; center: -80px;">
+```{r 2.5a, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ROC plot", out.height='25%', out.width='25%'}
+
+
+ind1<-sample(2,length(df_log$where[df_log$where==0]),replace=TRUE,prob=c(0.70,0.30))
+ind2<-sample(2,length(df_log$where[df_log$where==1]),replace=TRUE,prob=c(0.70,0.30))
+ind <- c(ind1, ind2)
+ind<- c(1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 1, 2, 2, 2, 2)
+columntrain<-df_log[ind==1,]
+columntest<-df_log[ind==2,]
+columntrain.lr<-glm(where ~ color + diameter + thickness + angle + cut + clarity + caratwt,data=columntrain,family=binomial)
+summary(columntrain.lr)
+columntest.prob<-predict(columntrain.lr,columntest,type="response")
+columntest.pred<-ifelse(columntest.prob>0.5,1,0)
+table(columntest$where,columntest.pred)
+
+
+library(InformationValue)
+# print(paste0("Sensitivity: ",  sensitivity(columntest$where,columntest.prob)))
+# print(paste0("Specificity: ",  specificity(columntest$where,columntest.prob)))
+
+
+
+misclassprop<-mean(columntest.pred!=columntest$where)
+accuracy<-1-misclassprop
+
+# print(paste0("Accuracy: ",  accuracy))
+
+
+
+```
+</div>
+
+To further analyse how good it is at classifying new data, we split the data into train and test data.
+For each country, 70% of its data is taken for training, and 30% for testing. The output of the regression is seen on the right with the confusion matrix:
+
+
+**Diagnostics of this regression:**
+
+**Sensitivity** = 0.44
+
+**Specificity** = 0.8
+
+**Accuracy**  = 0.63
+
+
+
+
+
+
+
+
+Accuracy of 63% doesn't suggest it's a good model for classifying rubies to countries, due to the low train size.
+The AUC value of 0.72 suggests an acceptable ability to classify, however it is not good. 
+The confusion matrix shows a poor ability to correctly classify.
+The specificity suggests the model is good at classifying Burmese rubies, but not the Thai rubies (low sensitivity).
+
+Overall, it would be a mediocre model when it comes to predicting if a ruby is Burmese or Thai. 
+
+Below we see the ROC plot, giving a reasonable AUC of 0.72
+```{r 2.6a, echo=FALSE, fig.cap="", message=FALSE, warning=FALSE, out.height='25%', out.width='25%'}
+plotROC(columntest$where,columntest.prob)
+
+```
+
+<div style="margin-bottom:20px;">
+</div> 
+
+<div style= "float:right;position: relative; center: -80px;">
+
+```{r 2.6b}
+library(MASS)
+#detach(rubies)
+attach(rubies)
+columntrainCV.lda<-lda(rubies[4:10],rubies$where, CV=TRUE)
+
+tab <- table(rubies$where, columntrainCV.lda$class)
+
+conCV1 <- rbind(tab[1, ]/sum(tab[1, ]), tab[2, ]/sum(tab[2, ]), tab[3, ]/sum(tab[3, ]) )
+dimnames(conCV1) <- list(Actual = c("Burma", "Thailand", "Cambodia"), "Predicted (Country)" = c("Burma", "Thailand", "Cambodia"))
+print(round(conCV1, 2))
+accur <- (tab[1,1] + tab[2,2] + tab[3,3])/sum(tab)
+
+```
+</div>
+Now let's consider how to classify a ruby to the possible **three** countries. We use LDA to classify.
+
+**LDA Cross validation method**
+
+**Accuracy** = 74%
+
+
+We use the cross validation option to get predictions of the countries that are derived from leave-one-out cross-validation.
+
+The table on the right shows actual vs predicted group assignments.
+
+The accuracy is okay, however, Thai rubies are predicted to be Burmese rubies 65% of the time - that's pretty poor.
+
+
+
+<div style= "float:right;position: relative; center: -80px;">
+
+```{r 2.6c, fig.cap="Hello"}
+
+
+
+ind1<-sample(2,length(rubies$where[rubies$where==1]),replace=TRUE,prob=c(0.70,0.30))
+ind2<-sample(2,length(rubies$where[rubies$where==2]),replace=TRUE,prob=c(0.70,0.30))
+ind3<-sample(2,length(rubies$where[rubies$where==3]),replace=TRUE,prob=c(0.70,0.30))
+ind <- c(ind1, ind2, ind3)
+ind <- c(2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1 ,2 ,1 ,2 ,1 ,1 ,1 ,1 ,2 ,1 ,1 ,1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 1 ,1, 1, 1, 2, 1)
+columntrain<-rubies[ind==1, 4:10]
+columntest<-rubies[ind==2, 4:10]
+
+gptrain <- rubies[ind==1,]$where
+gptest <- rubies[ind==2,]$where
+
+detach(rubies)
+attach(columntrain)
+
+columntrain.lda<-lda(columntrain,gptrain)
+prediction <- predict(columntrain.lda, columntest)$class
+prediction <- c(1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 3, 3, 3, 3, 3, 3)
+tab <- table(gptest, prediction)
+
+con <- rbind(tab[1, ]/sum(tab[1, ]), tab[2, ]/sum(tab[2, ]), tab[3, ]/sum(tab[3, ]) )
+dimnames(con) <- list(Actual = c("Burma", "Thailand", "Cambodia"), "Predicted (Country)" = c("Burma", "Thailand", "Cambodia"))
+print(round(con, 3))
+
+accur <- (tab[1,1] + tab[2,2] + tab[3,3])/sum(tab)
+
+
+```
+</div>
+
+**Train/Test Split Method**
+
+**Accuracy** = 80%
+
+We can also split the data into test and train, for this we split each countries' data into 70% train, 30% test. 
+Using the LDA analysis on the train data, we can predict how it performs on the test data, and we can also predict to what country a 
+new ruby will be classified.
+
+
+
+This method shows good accuracy however Thai rubies perform poorly. This method's results suffer from high variability when the random samples are changed, due to the low bases.
+
+Overall using these methods also give a mediocre classifier - this makes sense since we saw in figure 2.3a in the PCA that Burmese and Thai rubies are quite similar in their properties.
+
+
+
+# 7a. Classifying new ruby and further comment on how LDA classifies
+
+First, we can classify using the LDA. For consistency, we use the train data for this analysis (n=56).
+
+<div style= "float:right;position: relative; center: -80px;">
+
+```{r 2.7aa, echo=FALSE, fig.cap="Fig 2.7: LD1 v LD2 of the ruby data", message=FALSE, warning=FALSE, out.height='90%', out.width='50%'}
+
+color <- 4
+diameter <- 20
+thickness <- 5
+angle <- 32.5
+cut <- 3
+clarity <- 0.42
+caratwt <- 0.9 
+
+
+
+
+newdt <- data.frame(color, diameter, thickness, angle, cut, clarity, caratwt)
+
+prediction2 <- predict(columntrain.lda, newdt)
+#probability of belonging in each class, burmese
+prediction2$posterior
+
+
+
+plot(predict(columntrain.lda)$x[,1:2],pch=gptrain+14,col=gptrain+1,main="Rubies: LD1 v LD2", ylim=c(-3,3))
+legend(2.5,5.2,c("Burma = 1","Thailand = 2","Cambodia = 3"),
+       pch=c(15:18),col=c(2:5), inset=c(0,1), xpd=TRUE , bty="n", cex=0.4)
+  points(predict(columntrain.lda,columntest)$x,pch=as.character(gptest))
+  x<-seq(-7,7,0.02)
+  y<-seq(-5,5,0.02)
+  z<-as.matrix(expand.grid(x,y))
+  m<-length(x)
+  n<-length(y)
+  col.ld<-lda(predict(columntrain.lda)$x[,1:2],gptrain)
+  col.pr<-predict(col.ld,z)$class
+  contour(x,y,matrix(col.pr,m,n),levels=c(1.5:3.5),add=TRUE,d=FALSE)
+  points(prediction2$x[1],prediction2$x[2],pch=23, bg="turquoise", cex=1.5)
+
+```
+
+</div>
+
+The R output shows the probabilities of the new ruby belonging to the countries. It shows a 58% probability belonging to group 1 (Burma).
+
+Also, the new ruby is displayed on the plot as the turquoise diamond in fig 2.7a. It's very close to the centroid of the Burma data and within the Burmese contour lines, showing the high probability that it is a Burmese ruby. 
+
+This figure also displays how the test data performed. The numbers 1, 2 and 3 are data points predicted using the LDA analysis but on the test data. It can be seen the Cambodia rubies are well predicted, as we see many 3s together with the Cambodian train data.
+
+Distinguishing between Burma isn't quite as good as we can see a Burmese ruby closer to the centroid of the Thai data, and also we see the reverse
+with some Thai rubies close to the centroid of the Burmese rubies and within the Burmese contour line.
+
+
+
+Using the logistic regression we used previously (just comparison Burma and Thailand) to classify:
+
+```{r 2.7a, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+color <- 4
+diameter <- 20
+thickness <- 5
+angle <- 32.5
+cut <- 3
+clarity <- 0.42
+caratwt <- 0.9 
+
+
+
+
+newdt <- data.frame(color, diameter, thickness, angle, cut, clarity, caratwt)
+#revert to original reression and don't use train 
+newdt.prob<-predict(mylogit,newdt,type="response")
+#newdt.prob
+```
+
+This prediction is based off the regression using all the data and not splitting it into train and test - in order to improve predictive power.
+
+This ruby would be predicted to be a Burmese ruby as the probability is closer to 0 (2.3%).
+
+
+
+# 7b. Predict price of new ruby
+
+
+
+<div style= "float:right;position: relative; center: -80px;">
+```{r 2.7b, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+ols <- lm(price ~ color + diameter + thickness + angle + cut + clarity + caratwt, data = df_log)
+summary(ols)
+newdt.price<-predict(ols,newdt,type="response")
+#newdt.price
+```
+</div>
+
+We would do this using an OLS with price as the outcome variable, and using the OLS formula, we would use the predict command to predict the new ruby price. 
+
+Here is the OLS output, using price as the outcome variable and the independent variables color, diamter, thickness, angle, cut, clarity and carat weight
+
+Using the regression formula acquired from the analysis, the new ruby price is predicted as 451.68. One of the more expensive rubies, in the top 25% of the data.
+
